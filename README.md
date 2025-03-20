@@ -1,23 +1,12 @@
-# HaHeliotherm - Component
-<img src="https://github.com/mbuchber/ha_heliotherm/blob/b3bb7d035f186dd6520c8395d5a5111821dac922/heliotherm.png"  width="512">
+# HaHeliotherm_2 - Component
 
-[![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg)](https://github.com/hacs/integration)
-![Version](https://img.shields.io/github/v/release/mbuchber/ha_heliotherm?style=plastic)
-![Downloads](https://img.shields.io/github/downloads/mbuchber/ha_heliotherm/total)
+Lot of ideas and material from 
+
+https://github.com/mbuchber/ha_heliotherm
 
 Home Assistant Custom Component for Heliotherm Heatpumps. Also works fine with Brötje NEO heatpumps with NEO-RKM.
 
-![Example screenshot of dashboard](/Screenshot.png)
-
 ## Installation
-
-### HACS
-
-This component is easiest installed using [HACS](https://github.com/custom-components/hacs).
-
-To download the component, [the repository URL must be added as custom repository to HACS](https://hacs.xyz/docs/faq/custom_repositories/).
-
-Use the URL: https://github.com/mbuchber/ha_heliotherm
 
 ### Manual installation
 
