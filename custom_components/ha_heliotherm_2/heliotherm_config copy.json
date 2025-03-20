@@ -1,0 +1,1886 @@
+{
+  "config": {
+    "name": "ha_heliotherm2",
+    "version": "0.7",
+    "description": "Heliotherm heat pump integration for Home Assistant",
+    "information": {
+      "en": "Heliotherm heat pump integration for Home Assistant",
+      "de": "Heliotherm Wärmepumpenintegration für Home Assistant"
+    },
+    "domain": "ha_heliotherm2",
+    "display_language_default": "en",
+    "display_language": "de",
+    "manufacturer": "Heliotherm",
+    "model": "Heliotherm",
+    "default_port": 502,
+    "native_unit_of_measurement": {
+      "temperature": "°C",
+      "pressure": "bar",
+      "flow_rate": "l/min",
+      "speed": "%0",
+      "energy": "kW/h",
+      "time": "h",
+      "boolean": "number"
+    },
+    "default_access_mode": "read_only",
+    "default_scan_interval": 15,
+    "update_interval": 60,
+    "logging": {
+      "enabled": true,
+      "level": "info"
+    },
+    "reading_registers_begin": 10,
+    "reading_registers_end": 99,
+    "holding_registers_begin": 100,
+    "holding_registers_end": 150,
+    "reading_registers": [
+      {
+        "start_address": 10,
+        "count": 32
+      },
+      {
+        "start_address": 60,
+        "count": 16
+      }
+    ],
+    "holding_registers": [
+      {
+        "start_address": 100,
+        "count": 27
+      }
+    ]
+  },
+  "registers": {
+  "tempOutside": {
+    "register_number": 10,
+    "type": "sensor",
+    "register_codes": 4,
+    "datatype": "INT16",
+    "description": {
+      "en": "Temp. Outside",
+      "de": "Temp. Außen"
+    },
+    "unit": "°C",
+    "step": 0.1,
+    "min": -20,
+    "max": 40,
+    "controller_id": "MP0",
+    "mode": "readable",
+    "remark": "Einheit in 0,1 °c",
+    "designation": "Temp. Außen",
+    "read_register_code1": 4,
+    "read_register_code2": 3,
+    "write_register_code": null
+  },
+  "tempDomesticHotWater": {
+    "register_number": 11,
+    "type": "sensor",
+    "register_codes": 4,
+    "datatype": "INT16",
+    "description": {
+      "en": "Temp. Domestic Hot Water",
+      "de": "Temp. Brauchwasser"
+    },
+    "unit": "°C",
+    "step": 0.1,
+    "min": 20,
+    "max": 60,
+    "controller_id": "MP2",
+    "mode": "readable",
+    "remark": "Einheit in 0,1 °c",
+    "designation": "Temp. Brauchwasser",
+    "read_register_code1": 4,
+    "read_register_code2": 3,
+    "write_register_code": null
+  },
+  "tempFlow": {
+    "register_number": 12,
+    "type": "sensor",
+    "register_codes": 4,
+    "datatype": "INT16",
+    "description": {
+      "en": "Temp. Flow",
+      "de": "Temp. Vorlauf"
+    },
+    "unit": "°C",
+    "step": 0.1,
+    "min": 20,
+    "max": 60,
+    "controller_id": "MP3",
+    "mode": "readable",
+    "remark": "Einheit in 0,1 °c",
+    "designation": "Temp. Vorlauf",
+    "read_register_code1": 4,
+    "read_register_code2": 3,
+    "write_register_code": null
+  },
+  "tempReturn": {
+    "register_number": 13,
+    "type": "sensor",
+    "register_codes": 4,
+    "datatype": "INT16",
+    "description": {
+      "en": "Temp. Return",
+      "de": "Temp. Ruecklauf"
+    },
+    "unit": "°C",
+    "step": 0.1,
+    "min": 20,
+    "max": 60,
+    "controller_id": "MP4",
+    "mode": "readable",
+    "remark": "Einheit in 0,1 °c",
+    "designation": "Temp. Ruecklauf",
+    "read_register_code1": 4,
+    "read_register_code2": 3,
+    "write_register_code": null
+  },
+  "tempBufferTank": {
+    "register_number": 14,
+    "type": "sensor",
+    "register_codes": 4,
+    "datatype": "INT16",
+    "description": {
+      "en": "Temp. Buffer Tank",
+      "de": "Temp. Pufferspeicher"
+    },
+    "unit": "°C",
+    "step": 0.1,
+    "min": 20,
+    "max": 60,
+    "controller_id": "MP5",
+    "mode": "readable",
+    "remark": "Einheit in 0,1 °c",
+    "designation": "Temp. Pufferspeicher",
+    "read_register_code1": 4,
+    "read_register_code2": 3,
+    "write_register_code": null
+  },
+  "tempEqEntry": {
+    "register_number": 15,
+    "type": "sensor",
+    "register_codes": 4,
+    "datatype": "INT16",
+    "description": {
+      "en": "Temp. EQ Entry",
+      "de": "Temp. EQ_Eintritt"
+    },
+    "unit": "°C",
+    "step": 0.1,
+    "min": 20,
+    "max": 60,
+    "controller_id": "MP6",
+    "mode": "readable",
+    "remark": "Einheit in 0,1 °c",
+    "designation": "Temp. EQ_Eintritt",
+    "read_register_code1": 4,
+    "read_register_code2": 3,
+    "write_register_code": null
+  },
+  "tempEqExit": {
+    "register_number": 16,
+    "type": "sensor",
+    "register_codes": 4,
+    "datatype": "INT16",
+    "description": {
+      "en": "Temp. EQ Exit",
+      "de": "Temp. EQ_Austritt"
+    },
+    "unit": "°C",
+    "step": 0.1,
+    "min": 20,
+    "max": 60,
+    "controller_id": "MP7",
+    "mode": "readable",
+    "remark": "Einheit in 0,1 °c",
+    "designation": "Temp. EQ_Austritt",
+    "read_register_code1": 4,
+    "read_register_code2": 3,
+    "write_register_code": null
+  },
+  "tempSuctionGas": {
+    "register_number": 17,
+    "type": "sensor",
+    "register_codes": 4,
+    "datatype": "INT16",
+    "description": {
+      "en": "Temp. Suction Gas",
+      "de": "Temp. Sauggas"
+    },
+    "unit": "°C",
+    "step": 0.1,
+    "min": 20,
+    "max": 60,
+    "controller_id": "MP9",
+    "mode": "readable",
+    "remark": "Einheit in 0,1 °c",
+    "designation": "Temp. Sauggas",
+    "read_register_code1": 4,
+    "read_register_code2": 3,
+    "write_register_code": null
+  },
+  "tempEvaporation": {
+    "register_number": 18,
+    "type": "sensor",
+    "register_codes": 4,
+    "datatype": "INT16",
+    "description": {
+      "en": "Temp. Evaporation",
+      "de": "Temp. Verdampfung"
+    },
+    "unit": "°C",
+    "step": 0.1,
+    "min": 20,
+    "max": 60,
+    "controller_id": "MP12",
+    "mode": "readable",
+    "remark": "Einheit in 0,1 °c",
+    "designation": "Temp. Verdampfung",
+    "read_register_code1": 4,
+    "read_register_code2": 3,
+    "write_register_code": null
+  },
+  "tempCondensation": {
+    "register_number": 19,
+    "type": "sensor",
+    "register_codes": 4,
+    "datatype": "INT16",
+    "description": {
+      "en": "Temp. Condensation",
+      "de": "Temp. Kondensation"
+    },
+    "unit": "°C",
+    "step": 0.1,
+    "min": 20,
+    "max": 60,
+    "controller_id": "MP13",
+    "mode": "readable",
+    "remark": "Einheit in 0,1 °C",
+    "designation": "Temp. Kondensation",
+    "read_register_code1": 4,
+    "read_register_code2": 3,
+    "write_register_code": null
+  },
+  "tempHotgas": {
+    "register_number": 20,
+    "type": "sensor",
+    "register_codes": 4,
+    "datatype": "INT16",
+    "description": {
+      "en": "Temp. Heißgas",
+      "de": "Temp. Heißgas"
+    },
+    "unit": "°C",
+    "step": 0.1,
+    "min": 20,
+    "max": 60,
+    "controller_id": "MP15",
+    "mode": "readable",
+    "remark": "Einheit in 0,1 °c",
+    "designation": "Temp. Heißgas",
+    "read_register_code1": 4,
+    "read_register_code2": 3,
+    "write_register_code": null
+  },
+  "lowPressure": {
+    "register_number": 21,
+    "type": "sensor",
+    "register_codes": 4,
+    "datatype": "INT16",
+    "description": {
+      "en": "Niederdruck",
+      "de": "Niederdruck"
+    },
+    "unit": "bar",
+    "step": 0.1,
+    "min": 1,
+    "max": 2,
+    "controller_id": "MP20",
+    "mode": "readable",
+    "remark": "Einheit in 0,1 bar",
+    "designation": "Niederdruck",
+    "read_register_code1": 4,
+    "read_register_code2": 3,
+    "write_register_code": null
+  },
+  "highPressure": {
+    "register_number": 22,
+    "type": "sensor",
+    "register_codes": 4,
+    "datatype": "INT16",
+    "description": {
+      "en": "Hochdruck",
+      "de": "Hochdruck"
+    },
+    "unit": "bar",
+    "step": 0.1,
+    "min": 1,
+    "max": 2,
+    "controller_id": "MP21",
+    "mode": "readable",
+    "remark": "Einheit in 0,1 bar",
+    "designation": "Hochdruck",
+    "read_register_code1": 4,
+    "read_register_code2": 3,
+    "write_register_code": null
+  },
+  "heatingCircuitPumpRunning": {
+    "register_number": 23,
+    "type": "binary",
+    "register_codes": 4,
+    "datatype": "INT16",
+    "description": {
+      "en": "Heizkreispumpe läuft",
+      "de": "Heizkreispumpe läuft"
+    },
+    "handling_type": "boolean",
+    "unit": "number",
+    "step": 1,
+    "min": 0,
+    "max": 1,
+    "controller_id": "MP22",
+    "mode": "readable",
+    "remark": "ja, wenn<>0",
+    "designation": "Heizkreispumpe läuft",
+    "read_register_code1": 4,
+    "read_register_code2": 3,
+    "write_register_code": null
+  },
+  "bufferLoadingPumpRunning": {
+    "register_number": 24,
+    "type": "binary",
+    "register_codes": 4,
+    "datatype": "INT16",
+    "description": {
+      "en": "Pufferladepumpe läuft",
+      "de": "Pufferladepumpe läuft"
+    },
+    "handling_type": "boolean",
+    "unit": "number",
+    "step": 1,
+    "min": 0,
+    "max": 1,
+    "controller_id": "MP23",
+    "mode": "readable",
+    "remark": "ja, wenn<>0",
+    "designation": "Pufferladepumpe läuft",
+    "read_register_code1": 4,
+    "read_register_code2": 3,
+    "write_register_code": null
+  },
+  "heatPumpRunning": {
+    "register_number": 25,
+    "type": "binary",
+    "register_codes": 4,
+    "datatype": "INT16",
+    "description": {
+      "en": "Wärmepumpe läuft",
+      "de": "Wärmepumpe läuft"
+    },
+    "handling_type": "boolean",
+    "unit": "number",
+    "step": 1,
+    "min": 0,
+    "max": 1,
+    "controller_id": "MP30",
+    "mode": "readable",
+    "remark": "ja, wenn<>0",
+    "designation": "Wärmepumpe läuft",
+    "read_register_code1": 4,
+    "read_register_code2": 3,
+    "write_register_code": null
+  },
+  "fault": {
+    "register_number": 26,
+    "type": "binary",
+    "register_codes": 4,
+    "datatype": "INT16",
+    "description": {
+      "en": "Stoerung",
+      "de": "Stoerung"
+    },
+    "handling_type": "boolean",
+    "unit": "number",
+    "step": 1,
+    "min": 0,
+    "max": 1,
+    "controller_id": "MP31",
+    "mode": "readable",
+    "remark": "wenn<>0",
+    "designation": "Stoerung",
+    "read_register_code1": 4,
+    "read_register_code2": 3,
+    "write_register_code": null
+  },
+  "fourWayValve": {
+    "register_number": 27,
+    "type": "binary",
+    "register_codes": 4,
+    "datatype": "INT16",
+    "description": {
+      "en": "Vierwegeventil",
+      "de": "Vierwegeventil"
+    },
+    "handling_type": "boolean",
+    "unit": "number",
+    "step": 1,
+    "min": 0,
+    "max": 1,
+    "controller_id": "MP32",
+    "mode": "readable",
+    "remark": "Abtau / Reversierbetrieb, wenn<>0",
+    "designation": "Vierwegeventil",
+    "read_register_code1": 4,
+    "read_register_code2": 3,
+    "write_register_code": null
+  },
+  "flowRate": {
+    "register_number": 28,
+    "type": "sensor",
+    "register_codes": 4,
+    "datatype": "INT16",
+    "description": {
+      "en": "Durchfluss",
+      "de": "Durchfluss"
+    },
+    "unit": "l/min",
+    "step": 0.1,
+    "min": 0,
+    "max": 20,
+    "controller_id": "MP85",
+    "mode": "readable",
+    "remark": "Einheit in 0,1 l/min",
+    "designation": "Durchfluss",
+    "read_register_code1": 4,
+    "read_register_code2": 3,
+    "write_register_code": null
+  },
+  "compressorSpeed": {
+    "register_number": 29,
+    "type": "sensor",
+    "device_class": "pressure",
+    "register_codes": 4,
+    "datatype": "INT16",
+    "description": {
+      "en": "Verdichterdrehzahl",
+      "de": "Verdichterdrehzahl"
+    },
+    "unit": "%",
+    "step": 0.1,
+    "min": 0,
+    "max": 100,
+    "controller_id": "MP90",
+    "mode": "readable",
+    "remark": "Einheit in %0",
+    "designation": "Verdichterdrehzahl",
+    "read_register_code1": 4,
+    "read_register_code2": 3,
+    "write_register_code": null
+  },
+  "cop": {
+    "register_number": 30,
+    "type": "sensor",
+    "register_codes": 4,
+    "datatype": "INT16",
+    "description": {
+      "en": "COP",
+      "de": "COP"
+    },
+    "unit": "number",
+    "step": 0.1,
+    "min": 0,
+    "max": 100,
+    "controller_id": "MP92",
+    "mode": "readable",
+    "remark": "Faktor 0,1",
+    "designation": "COP",
+    "read_register_code1": 4,
+    "read_register_code2": 3,
+    "write_register_code": null
+  },
+  "tempFreshWater": {
+    "register_number": 31,
+    "type": "sensor",
+    "register_codes": 4,
+    "datatype": "INT16",
+    "description": {
+      "en": "Temp. Fresh Water",
+      "de": "Temp. Frischwasser"
+    },
+    "unit": "°C",
+    "step": 0.1,
+    "min": 20,
+    "max": 60,
+    "controller_id": "MP11",
+    "mode": "readable",
+    "remark": "Einheit in 0,1 °c",
+    "designation": "Temp. Frischwasser",
+    "read_register_code1": 4,
+    "read_register_code2": 3,
+    "write_register_code": null
+  },
+  "evuRelease": {
+    "register_number": 32,
+    "type": "binary",
+    "register_codes": 4,
+    "datatype": "INT16",
+    "description": {
+      "en": "EVU Release",
+      "de": "EVU Freigabe"
+    },
+    "handling_type": "boolean",
+    "unit": "number",
+    "step": 1,
+    "min": 0,
+    "max": 1,
+    "controller_id": "MP37",
+    "mode": "readable",
+    "remark": "wenn<>0",
+    "designation": "EVU Freigabe",
+    "read_register_code1": 4,
+    "read_register_code2": 3,
+    "write_register_code": null
+  },
+  "delayedOutsideTemp": {
+    "register_number": 33,
+    "type": "sensor",
+    "register_codes": 4,
+    "datatype": "INT16",
+    "description": {
+      "en": "Delayed Outside Temp.",
+      "de": "Verzögerte Außentemperatur"
+    },
+    "unit": "°C",
+    "step": 0.1,
+    "min": 20,
+    "max": 60,
+    "controller_id": "MP1",
+    "mode": "readable",
+    "remark": "Einheit in 0,1 °c",
+    "designation": "Verzögerte Außentemperatur",
+    "read_register_code1": 4,
+    "read_register_code2": 3,
+    "write_register_code": null
+  },
+  "returnTempStorageTemp1": {
+    "register_number": 34,
+    "type": "sensor",
+    "register_codes": 4,
+    "datatype": "INT16",
+    "description": {
+      "en": "Return Temp. / Storage Temp.",
+      "de": "Rücklaufsoli. / Speichersolltemperatur (abhängig von den WNA - Einstellungen)"
+    },
+    "unit": "°C",
+    "step": 0.1,
+    "min": 20,
+    "max": 60,
+    "controller_id": "MP57",
+    "mode": "readable",
+    "remark": "Einheit in 0,1 °C",
+    "designation": "Rücklaufsoli. / Speichersolltemperatur (abhängig von den WNA - Einstellungen)",
+    "read_register_code1": 4,
+    "read_register_code2": 3,
+    "write_register_code": null
+  },
+  "mkr1FlowTemp": {
+    "register_number": 35,
+    "type": "sensor",
+    "register_codes": 4,
+    "datatype": "INT16",
+    "description": {
+      "en": "MKR1 Flow Temp.",
+      "de": "MKR1 VL Solltemperatur"
+    },
+    "unit": "°C",
+    "step": 0.1,
+    "min": 20,
+    "max": 60,
+    "controller_id": "MP66",
+    "mode": "readable",
+    "remark": "Einheit in 0,1 °c",
+    "designation": "MKR1 VL Solltemperatur",
+    "read_register_code1": 4,
+    "read_register_code2": 3,
+    "write_register_code": null
+  },
+  "mkr2FlowTemp": {
+    "register_number": 36,
+    "type": "sensor",
+    "register_codes": 4,
+    "datatype": "INT16",
+    "description": {
+      "en": "MKR2 Flow Temp.",
+      "de": "MKR2 VL Solltemperatur"
+    },
+    "unit": "°C",
+    "step": 0.1,
+    "min": 20,
+    "max": 60,
+    "controller_id": "MP72",
+    "mode": "readable",
+    "remark": "Einheit in 0,1 °c",
+    "designation": "MKR2 VL Solltemperatur",
+    "read_register_code1": 4,
+    "read_register_code2": 3,
+    "write_register_code": null
+  },
+  "energySourcePumpFan": {
+    "register_number": 37,
+    "type": "binary",
+    "register_codes": 4,
+    "datatype": "INT16",
+    "description": {
+      "en": "Energy Source Pump / Fan",
+      "de": "Energiequellenpumpe / Ventilator läuft"
+    },
+    "handling_type": "boolean",
+    "unit": "number",
+    "step": 1,
+    "min": 0,
+    "max": 1,
+    "controller_id": "MP24",
+    "mode": "readable",
+    "remark": "ja, wenn<>0",
+    "designation": "Energiequellenpumpe / Ventilator läuft",
+    "read_register_code1": 4,
+    "read_register_code2": 3,
+    "write_register_code": null
+  },
+  "domesticHotWaterPriority": {
+    "register_number": 38,
+    "type": "binary",
+    "register_codes": 4,
+    "datatype": "INT16",
+    "description": {
+      "en": "Domestic Hot Water Priority",
+      "de": "Brauchwassr- Vorrang"
+    },
+    "handling_type": "boolean",
+    "unit": "number",
+    "step": 1,
+    "min": 0,
+    "max": 1,
+    "controller_id": "MP25",
+    "mode": "readable",
+    "remark": "aktiv, wenn<>0",
+    "designation": "Brauchwassr- Vorrang",
+    "read_register_code1": 4,
+    "read_register_code2": 3,
+    "write_register_code": null
+  },
+  "coolingUmvPassive": {
+    "register_number": 39,
+    "type": "binary",
+    "register_codes": 4,
+    "datatype": "INT16",
+    "description": {
+      "en": "Cooling UMV Passive",
+      "de": "Kühlen UMV passiv"
+    },
+    "handling_type": "boolean",
+    "unit": "number",
+    "step": 1,
+    "min": 0,
+    "max": 1,
+    "controller_id": "MP27",
+    "mode": "readable",
+    "remark": "ein, wenn<>0",
+    "designation": "Kühlen UMV passiv",
+    "read_register_code1": 4,
+    "read_register_code2": 3,
+    "write_register_code": null
+  },
+  "expansionValve": {
+    "register_number": 40,
+    "type": "binary",
+    "register_codes": 4,
+    "datatype": "INT16",
+    "description": {
+      "en": "Expansion Valve",
+      "de": "Expansionsventil"
+    },
+    "unit": "%",
+    "step": 1,
+    "min": 0,
+    "max": 1,
+    "controller_id": "MP51",
+    "mode": "readable",
+    "remark": "Einheit in %0",
+    "designation": "Expansionsventil",
+    "read_register_code1": 4,
+    "read_register_code2": 3,
+    "write_register_code": null
+  },
+  "heatPumpRequest": {
+    "register_number": 41,
+    "type": "select",
+    "register_codes": 4,
+    "datatype": "INT16",
+    "description": {
+      "en": "Heat Pump Request",
+      "de": "Anforderung der Wärmepumpe"
+    },
+    "options": {
+      "0": "Keine",
+      "10": "Kühlen",
+      "20": "Heizen",
+      "30": "Warmwasser"
+    },
+    "unit": "number",
+    "step": 10,
+    "min": 0,
+    "max": 30,
+    "controller_id": "MP56",
+    "mode": "readable",
+    "remark": "0 = Keine, 10 = Kühlen, 20 = Heizen, 30 = Warmwasser",
+    "designation": "Anforderung der Wärmepumpe",
+    "read_register_code1": 4,
+    "read_register_code2": 3,
+    "write_register_code": null
+  },
+  "operatingHoursDHWMode1": {
+    "register_number": 42,
+    "type": "sensor",
+    "register_codes": 4,
+    "datatype": "UINT32",
+    "description": {
+      "en": "Operating Hours in DHW Mode",
+      "de": "Betriebsstunden im WW-Betrieb"
+    },
+    "unit": "h",
+    "step": 1,
+    "min": 0,
+    "max": 1000,
+    "controller_id": "SP171",
+    "mode": "readable",
+    "remark": "Einheit in h",
+    "designation": "Betriebsstunden im WW-Betrieb",
+    "read_register_code1": 4,
+    "read_register_code2": 3,
+    "write_register_code": null
+  },
+  "operatingHoursDHWMode2": {
+    "register_number": 43,
+    "type": "sensor",
+    "register_codes": 4,
+    "datatype": "UINT32",
+    "description": {
+      "en": "Operating Hours in DHW Mode",
+      "de": "Betriebsstunden im WW-Betrieb"
+    },
+    "unit": "h",
+    "step": 1,
+    "min": 0,
+    "max": 1,
+    "controller_id": "SP171",
+    "mode": "readable",
+    "remark": "Einheit in h",
+    "designation": "Betriebsstunden im WW-Betrieb",
+    "read_register_code1": 4,
+    "read_register_code2": 3,
+    "write_register_code": null
+  },
+  "operatingHoursHeatingMode1": {
+    "register_number": 44,
+    "type": "sensor",
+    "register_codes": 4,
+    "datatype": "UINT32",
+    "description": {
+      "en": "Operating Hours in Heating Mode",
+      "de": "Betriebsstunden im HZG-Betrieb"
+    },
+    "unit": "h",
+    "step": 1,
+    "min": 0,
+    "max": 1,
+    "controller_id": "SP172",
+    "mode": "readable",
+    "remark": "Einheit in h",
+    "designation": "Betriebsstunden im HZG-Betrieb",
+    "read_register_code1": 4,
+    "read_register_code2": 3,
+    "write_register_code": null
+  },
+  "operatingHoursHeatingMode2": {
+    "register_number": 45,
+    "type": "sensor",
+    "register_codes": 4,
+    "datatype": "UINT32",
+    "description": {
+      "en": "Operating Hours in Heating Mode",
+      "de": "Betriebsstunden im HZG-Betrieb"
+    },
+    "unit": "h",
+    "step": 1,
+    "min": 0,
+    "max": 1,
+    "controller_id": "SP172",
+    "mode": "readable",
+    "remark": "Einheit in h",
+    "designation": "Betriebsstunden im HZG-Betrieb",
+    "read_register_code1": 4,
+    "read_register_code2": 3,
+    "write_register_code": null
+  },
+  "thermalHeatingEnergyHeatingMode1": {
+    "register_number": 60,
+    "type": "sensor",
+    "register_codes": 4,
+    "datatype": "UINT32",
+    "description": {
+      "en": "Thermal Heating Energy in Heating Mode",
+      "de": "thermische Heizenergie im Heizbetrieb"
+    },
+    "unit": "kW/h",
+    "step": 1,
+    "min": 0,
+    "max": 1,
+    "controller_id": "MP52",
+    "mode": "readable",
+    "remark": "Einheit in kW/h",
+    "designation": "thermische Heizenergie im Heizbetrieb/wmz-heizung",
+    "read_register_code1": 4,
+    "read_register_code2": 3,
+    "write_register_code": null
+  },
+  "thermalHeatingEnergyHeatingMode2": {
+    "register_number": 61,
+    "type": "sensor",
+    "register_codes": 4,
+    "datatype": "UINT32",
+    "description": {
+      "en": "Thermal Heating Energy in Heating Mode",
+      "de": "thermische Heizenergie im Heizbetrieb"
+    },
+    "unit": "kW/h",
+    "step": 1,
+    "min": 0,
+    "max": 1,
+    "controller_id": "MP52",
+    "mode": "readable",
+    "remark": "Einheit in kW/h",
+    "designation": "thermische Heizenergie im Heizbetrieb",
+    "read_register_code1": 4,
+    "read_register_code2": 3,
+    "write_register_code": null
+  },
+  "electricalEnergyHeatingMode1": {
+    "register_number": 62,
+    "type": "sensor",
+    "register_codes": 4,
+    "datatype": "UINT32",
+    "description": {
+      "en": "Electrical Energy in Heating Mode",
+      "de": "elektrische Energie im Heizbetrieb"
+    },
+    "unit": "kW/h",
+    "step": 1,
+    "min": 0,
+    "max": 1,
+    "controller_id": "MP53",
+    "mode": "readable",
+    "remark": "Einheit in kW/h",
+    "designation": "elektrische Energie im Heizbetrieb/stromz_heizung",
+    "read_register_code1": 4,
+    "read_register_code2": 3,
+    "write_register_code": null
+  },
+  "electricalEnergyHeatingMode2": {
+    "register_number": 63,
+    "type": "sensor",
+    "register_codes": 4,
+    "datatype": "UINT32",
+    "description": {
+      "en": "Electrical Energy in Heating Mode",
+      "de": "elektrische Energie im Heizbetrieb"
+    },
+    "unit": "kW/h",
+    "step": 1,
+    "min": 0,
+    "max": 1,
+    "controller_id": "MP53",
+    "mode": "readable",
+    "remark": "Einheit in kW/h",
+    "designation": "elektrische Energie im Heizbetrieb",
+    "read_register_code1": 4,
+    "read_register_code2": 3,
+    "write_register_code": null
+  },
+  "thermalHeatingEnergyDHWMode1": {
+    "register_number": 64,
+    "type": "sensor",
+    "register_codes": 4,
+    "datatype": "UINT32",
+    "description": {
+      "en": "Thermal Heating Energy in DHW Mode",
+      "de": "thermische Heizenergie im WW-Betrieb"
+    },
+    "unit": "kW/h",
+    "step": 1,
+    "min": 0,
+    "max": 1,
+    "controller_id": "MP54",
+    "mode": "readable",
+    "remark": "Einheit in kW/h",
+    "designation": "thermische Heizenergie im WW-Betrieb/wmz_brauchwasser",
+    "read_register_code1": 4,
+    "read_register_code2": 3,
+    "write_register_code": null
+  },
+  "thermalHeatingEnergyDHWMode2": {
+    "register_number": 65,
+    "type": "sensor",
+    "register_codes": 4,
+    "datatype": "UINT32",
+    "description": {
+      "en": "Thermal Heating Energy in DHW Mode",
+      "de": "thermische Heizenergie im WW-Betrieb"
+    },
+    "unit": "kW/h",
+    "step": 1,
+    "min": 0,
+    "max": 1,
+    "controller_id": "MP54",
+    "mode": "readable",
+    "remark": "Einheit in kW/h",
+    "designation": "thermische Heizenergie im WW-Betrieb",
+    "read_register_code1": 4,
+    "read_register_code2": 3,
+    "write_register_code": null
+  },
+  "electricalEnergyDHWMode1": {
+    "register_number": 66,
+    "type": "sensor",
+    "register_codes": 4,
+    "datatype": "UINT32",
+    "description": {
+      "en": "Electrical Energy in DHW Mode",
+      "de": "elektrische Energie im WW-Betrieb"
+    },
+    "unit": "kW/h",
+    "step": 1,
+    "min": 0,
+    "max": 1,
+    "controller_id": "MP55",
+    "mode": "readable",
+    "remark": "Einheit in kW/h",
+    "designation": "elektrische Energie im WW-Betrieb/stromz_brauchwasser",
+    "read_register_code1": 4,
+    "read_register_code2": 3,
+    "write_register_code": null
+  },
+  "electricalEnergyDHWMode2": {
+    "register_number": 67,
+    "type": "sensor",
+    "register_codes": 4,
+    "datatype": "UINT32",
+    "description": {
+      "en": "Electrical Energy in DHW Mode",
+      "de": "elektrische Energie im WW-Betrieb"
+    },
+    "unit": "kW/h",
+    "step": 1,
+    "min": 0,
+    "max": 1,
+    "controller_id": "MP55",
+    "mode": "readable",
+    "remark": "Einheit in kW/h",
+    "designation": "elektrische Energie im WW-Betrieb",
+    "read_register_code1": 4,
+    "read_register_code2": 3,
+    "write_register_code": null
+  },
+  "totalElectricalEnergy1": {
+    "register_number": 68,
+    "type": "sensor",
+    "register_codes": 4,
+    "datatype": "UINT32",
+    "description": {
+      "en": "Total Electrical Energy",
+      "de": "gesamte elektrische Energie"
+    },
+    "unit": "kW/h",
+    "step": 1,
+    "min": 0,
+    "max": 1,
+    "controller_id": "MP75",
+    "mode": "readable",
+    "remark": "Einheit in kW/h",
+    "designation": "gesamte elektrische Energie/stromz_gesamt",
+    "read_register_code1": 4,
+    "read_register_code2": 3,
+    "write_register_code": null
+  },
+  "totalElectricalEnergy2": {
+    "register_number": 69,
+    "type": "sensor",
+    "register_codes": 4,
+    "datatype": "UINT32",
+    "description": {
+      "en": "Total Electrical Energy",
+      "de": "gesamte elektrische Energie"
+    },
+    "unit": "kW/h",
+    "step": 1,
+    "min": 0,
+    "max": 1,
+    "controller_id": "MP75",
+    "mode": "readable",
+    "remark": "Einheit in kW/h",
+    "designation": "gesamte elektrische Energie",
+    "read_register_code1": 4,
+    "read_register_code2": 3,
+    "write_register_code": null
+  },
+  "electricalPowerConsumption1": {
+    "register_number": 70,
+    "type": "sensor",
+    "register_codes": 4,
+    "datatype": "UINT32",
+    "description": {
+      "en": "Electrical Power Consumption",
+      "de": "elektrisch Aufnahmeleistung"
+    },
+    "unit": "W",
+    "step": 1,
+    "min": 0,
+    "max": 1,
+    "controller_id": "MP83",
+    "mode": "readable",
+    "remark": "Einheit in W",
+    "designation": "elektrisch Aufnahmeleistung/stromz_leistung",
+    "read_register_code1": 4,
+    "read_register_code2": 3,
+    "write_register_code": null
+  },
+  "electricalPowerConsumption2": {
+    "register_number": 71,
+    "type": "sensor",
+    "register_codes": 4,
+    "datatype": "UINT32",
+    "description": {
+      "en": "Electrical Power Consumption",
+      "de": "elektrisch Aufnahmeleistung"
+    },
+    "unit": "W",
+    "step": 1,
+    "min": 0,
+    "max": 1,
+    "controller_id": "MP83",
+    "mode": "readable",
+    "remark": "Einheit in W",
+    "designation": "elektrisch Aufnahmeleistung",
+    "read_register_code1": 4,
+    "read_register_code2": 3,
+    "write_register_code": null
+  },
+  "totalThermalHeatingEnergy1": {
+    "register_number": 72,
+    "type": "sensor",
+    "register_codes": 4,
+    "datatype": "UINT32",
+    "description": {
+      "en": "Total Thermal Heating Energy",
+      "de": "gesamte thermische Heizenergie"
+    },
+    "unit": "kW/h",
+    "step": 1,
+    "min": 0,
+    "max": 1,
+    "controller_id": "MP84",
+    "mode": "readable",
+    "remark": "Einheit in kW/h",
+    "designation": "gesamte thermische Heizenergie / wmz_gesamt",
+    "read_register_code1": 4,
+    "read_register_code2": 3,
+    "write_register_code": null
+  },
+  "totalThermalHeatingEnergy2": {
+    "register_number": 73,
+    "type": "sensor",
+    "register_codes": 4,
+    "datatype": "UINT32",
+    "description": {
+      "en": "Total Thermal Heating Energy",
+      "de": "gesamte thermische Heizenergie"
+    },
+    "unit": "kW/h",
+    "step": 1,
+    "min": 0,
+    "max": 1,
+    "controller_id": "MP84",
+    "mode": "readable",
+    "remark": "Einheit in kW/h",
+    "designation": "gesamte thermische Heizenergie",
+    "read_register_code1": 4,
+    "read_register_code2": 3,
+    "write_register_code": null
+  },
+  "thermalHeatingPower1": {
+    "register_number": 74,
+    "type": "sensor",
+    "register_codes": 4,
+    "datatype": "UINT32",
+    "description": {
+      "en": "Thermal Heating Power",
+      "de": "thermische Heizleistung"
+    },
+    "unit": "kW",
+    "step": 0.1,
+    "min": 0,
+    "max": 1,
+    "controller_id": "MP89",
+    "mode": "readable",
+    "remark": "Einheit in 0,1 kW",
+    "designation": "thermische Heizleistung/wmz_leistung",
+    "read_register_code1": 4,
+    "read_register_code2": 3,
+    "write_register_code": null
+  },
+  "thermalHeatingPower2": {
+    "register_number": 75,
+    "type": "sensor",
+    "register_codes": 4,
+    "datatype": "UINT32",
+    "description": {
+      "en": "Thermal Heating Power",
+      "de": "thermische Heizleistung"
+    },
+    "unit": "kW",
+    "step": 0.1,
+    "min": 0,
+    "max": 1,
+    "controller_id": "MP89",
+    "mode": "readable",
+    "remark": "Einheit in 0,1 kW",
+    "designation": "thermische Heizleistung",
+    "read_register_code1": 4,
+    "read_register_code2": 3,
+    "write_register_code": null
+  },
+  "operatingMode": {
+    "register_number": 100,
+    "type": "select",
+    "register_codes": "03,06,16",
+    "datatype": "UINT16",
+    "description": {
+      "en": "Operating Mode",
+      "de": "Betriebsart 0=AUS, 1=Auto, 2=Kühl., 3=Sommer, 4=Dauer., 5=Absenk., 6=Urlaub, 7=Party, 8=Ausheizen, 9=EVU Sperre, 10=Hauptschalter aus"
+    },
+    "options": {
+      "0": "AUS",
+      "1": "Auto",
+      "2": "Kühlen",
+      "3": "Sommer",
+      "4": "Dauerbetrieb",
+      "5": "Absenken",
+      "6": "Urlaub",
+      "7": "Party"
+    },
+    "default_option": 1,
+    "unit": "number",
+    "min": 0,
+    "max": 7,
+    "step": 1,
+    "controller_id": "SP13",
+    "mode": "writeable",
+    "remark": "darf nur von 0-7 beschrieben werden, 8-10 ist nur informativ",
+    "designation": "Betriebsart",
+    "read_register_code1": 3,
+    "read_register_code2": null,
+    "write_register_code": 6
+  },
+  "desiredRoomTemperature": {
+    "register_number": 101,
+    "type": "climate",
+    "register_codes": "03,06,16",
+    "datatype": "INT16",
+    "description": {
+      "en": "Desired Room Temperature",
+      "de": "Raumsolltemperatur"
+    },
+    "unit": "°C",
+    "step": 0.1,
+    "min": 10,
+    "max": 25,
+    "controller_id": "SP69",
+    "mode": "writeable",
+    "remark": "Einheit in 0,1°C",
+    "designation": "Raumsolltemperatur",
+    "read_register_code1": 3,
+    "read_register_code2": null,
+    "write_register_code": 6
+  },
+  "returnTempStorageTemp2": {
+    "register_number": 102,
+    "type": "sensor",
+    "register_codes": "03,06,16",
+    "datatype": "INT16",
+    "description": {
+      "en": "Return Temp. / Storage Temp.",
+      "de": "Rücklaufsoli. / Speichersolltemperatur (abhängig von der Speichereinstellung im Menüpunkt WNA - Einstellungen)"
+    },
+    "unit": "°C",
+    "step": 0.1,
+    "min": 10,
+    "max": 25,
+    "controller_id": "MP57",
+    "mode": "writeable",
+    "remark": "Einheit in 0,1°C",
+    "designation": "Rücklaufsoli. / Speichersolltemperatur",
+    "read_register_code1": 3,
+    "read_register_code2": null,
+    "write_register_code": 6
+  },
+  "returnTempStorageTempActive": {
+    "register_number": 103,
+    "type": "sensor",
+    "register_codes": "03,06,16",
+    "datatype": "UINT16",
+    "description": {
+      "en": "Return Temp. / Storage Temp. Active",
+      "de": "Rücklaufsoli. / Speichersolltemperatur aktiv"
+    },
+    "unit": "number",
+    "step": 1,
+    "min": 0,
+    "max": 1,
+    "controller_id": "MP57",
+    "mode": "writeable",
+    "remark": "muss auf 1 geschrieben werden, damit das Register 102 übernommen wird",
+    "designation": "Rücklaufsoli. / Speichersolltemperatur aktiv",
+    "read_register_code1": 3,
+    "read_register_code2": null,
+    "write_register_code": 6
+  },
+  "rltMinCooling": {
+    "register_number": 104,
+    "type": "climate",
+    "register_codes": "03,06,16",
+    "datatype": "INT16",
+    "description": {
+      "en": "RLT min Cooling",
+      "de": "RLT min Kuelung"
+    },
+    "unit": "°C",
+    "step": 0.1,
+    "min": 15,
+    "max": 25,
+    "controller_id": "SP175",
+    "mode": "writeable",
+    "remark": "Einheit 0,1°C",
+    "designation": "RLT min Kuelung",
+    "read_register_code1": 3,
+    "read_register_code2": null,
+    "write_register_code": 6
+  },
+  "wwNormaltemp": {
+    "register_number": 105,
+    "type": "sensor",
+    "register_codes": "03,06,16",
+    "datatype": "INT16",
+    "description": {
+      "en": "WW Normaltemp.",
+      "de": "WW Normaltemp."
+    },
+    "unit": "°C",
+    "step": 0.1,
+    "min": 25,
+    "max": 58,
+    "controller_id": "SP83",
+    "mode": "writeable",
+    "remark": "Einheit 0,1°C",
+    "designation": "WW Normaltemp.",
+    "read_register_code1": 3,
+    "read_register_code2": null,
+    "write_register_code": 6
+  },
+  "wwMinimaltemp": {
+    "register_number": 106,
+    "type": "sensor",
+    "register_codes": "03,06,16",
+    "datatype": "INT16",
+    "description": {
+      "en": "WW Minimaltemp.",
+      "de": "WW Minimaltemp."
+    },
+    "unit": "°C",
+    "step": 0.1,
+    "min": 25,
+    "max": 58,
+    "controller_id": "SP85",
+    "mode": "writeable",
+    "remark": "Einheit 0,1°C",
+    "designation": "WW Minimaltemp.",
+    "read_register_code1": 3,
+    "read_register_code2": null,
+    "write_register_code": 6
+  },
+  "mkr1OperatingMode": {
+    "register_number": 107,
+    "type": "select",
+    "register_codes": "03,06,16",
+    "datatype": "UINT16",
+    "description": {
+      "en": "MKR1 Betriebsart",
+      "de": "MKR1 Betriebsart"
+    },
+    "options": {
+      "0": "AUS",
+      "1": "Auto",
+      "2": "Kühlen",
+      "3": "Sommer",
+      "4": "Dauerbetrieb",
+      "5": "Absenken",
+      "6": "Urlaub",
+      "7": "Party"
+    },
+    "default_option": 1,
+    "unit": "number",
+    "min": 0,
+    "max": 7,
+    "step": 1,
+    "controller_id": "SP231",
+    "mode": "writeable",
+    "remark": "Siehe Reg. 100",
+    "designation": "MKR1 Betriebsart",
+    "read_register_code1": 3,
+    "read_register_code2": null,
+    "write_register_code": 6
+  },
+  "mkr1DesiredRoomTemperature": {
+    "register_number": 108,
+    "type": "sensor",
+    "register_codes": "03,06,16",
+    "datatype": "INT16",
+    "description": {
+      "en": "MKR1 DesiredRoomTemperature",
+      "de": "MKR1 Raumsolltemperatur"
+    },
+    "unit": "°C",
+    "step": 0.1,
+    "min": 15,
+    "max": 25,
+    "controller_id": "SP200",
+    "mode": "writeable",
+    "remark": "Einheit in 0,1°C",
+    "designation": "MKR1 RoomDesiredTemperature",
+    "read_register_code1": 3,
+    "read_register_code2": null,
+    "write_register_code": 6
+  },
+  "mkr1VLDesiredTemperature": {
+    "register_number": 109,
+    "type": "sensor",
+    "register_codes": "03,06,16",
+    "datatype": "INT16",
+    "description": {
+      "en": "MKR1 VL DesiredTemperature",
+      "de": "MKR1 VL Solltemperatur"
+    },
+    "unit": "°C",
+    "step": 0.1,
+    "min": 15,
+    "max": 25,
+    "controller_id": "MP66",
+    "mode": "writeable",
+    "remark": "Einheit in 0,1°C",
+    "designation": "MKR1 VL DesiredTemperature",
+    "read_register_code1": 3,
+    "read_register_code2": null,
+    "write_register_code": 6
+  },
+  "mkr1VLDesiredTemperatureActive": {
+    "register_number": 110,
+    "type": "sensor",
+    "register_codes": "03,06,16",
+    "datatype": "UINT16",
+    "description": {
+      "en": "MKR1 VL DesiredTemperature Active",
+      "de": "MKR1 VL Solltemperatur aktiv"
+    },
+    "unit": "number",
+    "min": 0,
+    "max": 7,
+    "step": 1,
+    "controller_id": "MP66",
+    "mode": "writeable",
+    "remark": "0 oder 1",
+    "designation": "MKR1 VL DesiredTemperature aktiv",
+    "read_register_code1": 3,
+    "read_register_code2": null,
+    "write_register_code": 6
+  },
+  "mkr1CoolingRltMin": {
+    "register_number": 111,
+    "type": "sensor",
+    "register_codes": "03,06,16",
+    "datatype": "INT16",
+    "description": {
+      "en": "MKR1 Cooling RLT min.",
+      "de": "MKR1 Kühlung RLT min."
+    },
+    "unit": "°C",
+    "step": 0.1,
+    "min": 15,
+    "max": 25,
+    "controller_id": "SP348",
+    "mode": "writeable",
+    "remark": "Einheit in 0,1°C",
+    "designation": "MKR1 Cooling RLT min.",
+    "read_register_code1": 3,
+    "read_register_code2": null,
+    "write_register_code": 6
+  },
+  "mkr2OperatingMode": {
+    "register_number": 112,
+    "type": "select",
+    "register_codes": "03,06,16",
+    "datatype": "UINT16",
+    "description": {
+      "en": "MKR2 OperatingMode",
+      "de": "MKR2 Betriebsart"
+    },
+    "options": {
+      "0": "AUS",
+      "1": "Auto",
+      "2": "Kühlen",
+      "3": "Sommer",
+      "4": "Dauerbetrieb",
+      "5": "Absenken",
+      "6": "Urlaub",
+      "7": "Party"
+    },
+    "default_option": 1,
+    "unit": "number",
+    "min": 0,
+    "max": 7,
+    "step": 1,
+    "controller_id": "SP244",
+    "mode": "writeable",
+    "remark": "Siehe Reg. 100",
+    "designation": "MKR2 OperatingMode",
+    "read_register_code1": 3,
+    "read_register_code2": null,
+    "write_register_code": 6
+  },
+  "mkr2DesiredRoomTemperature": {
+    "register_number": 113,
+    "type": "sensor",
+    "register_codes": "03,06,16",
+    "datatype": "INT16",
+    "description": {
+      "en": "MKR2 DesiredRoomTemperature",
+      "de": "MKR2 Raumsolltemperatur"
+    },
+    "unit": "°C",
+    "step": 0.1,
+    "min": 15,
+    "max": 25,
+    "controller_id": "SP223",
+    "mode": "writeable",
+    "remark": "Einheit in 0,1°C",
+    "designation": "MKR2 DesiredRoomTemperature",
+    "read_register_code1": 3,
+    "read_register_code2": null,
+    "write_register_code": 6
+  },
+  "mkr2VLDesiredTemperature": {
+    "register_number": 114,
+    "type": "sensor",
+    "register_codes": "03,06,16",
+    "datatype": "INT16",
+    "description": {
+      "en": "MKR2 VL DesiredTemperature",
+      "de": "MKR2 VL Solltemperatur"
+    },
+    "unit": "°C",
+    "step": 0.1,
+    "min": 15,
+    "max": 25,
+    "controller_id": "MP72",
+    "mode": "writeable",
+    "remark": "Einheit in 0,1°C",
+    "designation": "MKR2 VL DesiredTemperature",
+    "read_register_code1": 3,
+    "read_register_code2": null,
+    "write_register_code": 6
+  },
+  "mkr2VLDesiredTemperatureActive": {
+    "register_number": 115,
+    "type": "sensor",
+    "register_codes": "03,06,16",
+    "datatype": "UINT16",
+    "description": {
+      "en": "MKR2 VL DesiredTemperature Active",
+      "de": "MKR2 VL Solltemperatur aktiv"
+    },
+    "unit": "number",
+    "step": 1,
+    "min": 0,
+    "max": 1,
+    "controller_id": "MP72",
+    "mode": "writeable",
+    "remark": "0 oder 1",
+    "designation": "MKR2 VL DesiredTemperature Active",
+    "read_register_code1": 3,
+    "read_register_code2": null,
+    "write_register_code": 6
+  },
+  "mkr2CoolingRltMin": {
+    "register_number": 116,
+    "type": "sensor",
+    "register_codes": "03,06,16",
+    "datatype": "INT16",
+    "description": {
+      "en": "MKR2 Cooling RLT min.",
+      "de": "MKR2 Kühlung RLT min."
+    },
+    "unit": "°C",
+    "step": 0.1,
+    "min": 15,
+    "max": 25,
+    "controller_id": "SP352",
+    "mode": "writeable",
+    "remark": "Einheit in 0,1°C",
+    "designation": "MKR2 Cooling RLT min.",
+    "read_register_code1": 3,
+    "read_register_code2": null,
+    "write_register_code": 6
+  },
+  "requestExternalCompressorSpeedSetpoint": {
+    "register_number": 117,
+    "type": "sensor",
+    "register_codes": "03,06,16",
+    "datatype": "UINT16",
+    "description": {
+      "en": "requestExternalCompressorSpeedSetpoint",
+      "de": "Anforderung für externe Verdichterdrehzahlvorgabe"
+    },
+    "unit": "number",
+    "step": 1,
+    "min": 0,
+    "max": 1,
+    "controller_id": "SP436",
+    "mode": "writeable",
+    "remark": "0 = keine Anforderung, 1 = Anforderung",
+    "designation": "Anforderung für externe Verdichterdrehzahlvorgabe",
+    "read_register_code1": 3,
+    "read_register_code2": null,
+    "write_register_code": 6
+  },
+  "electricalPowerSetpointWP": {
+    "register_number": 125,
+    "type": "sensor",
+    "register_codes": "03,06,16",
+    "datatype": "UINT16",
+    "description": {
+      "en": "Vorgabe der elektischen Aufnahmeleistung der WP",
+      "de": "Vorgabe der elektischen Aufnahmeleistung der WP"
+    },
+    "unit": "W",
+    "step": 1,
+    "min": 0,
+    "max": 1,
+    "controller_id": "---",
+    "mode": "writeable",
+    "remark": "W (*1) Der Registerwert wird übernommen, wenn am Webinterface des RCG X der PV Modus auf ModbusT­ CP / bzw. RTU gestellt ist. Die Wärmepumpe verhält sich dann entsprechend der PV - Einstellung im Webinterface genaueres siehe Kapitel 8 Photovoltaik.",
+    "designation": "Vorgabe der elektischen Aufnahmeleistung der WP",
+    "read_register_code1": 3,
+    "read_register_code2": null,
+    "write_register_code": 6
+  },
+  "compressorSpeedSetpoint": {
+    "register_number": 126,
+    "type": "sensor",
+    "register_codes": "03,06,16",
+    "datatype": "INT16",
+    "description": {
+      "en": "Verdichter - Drehzahlvorgabe",
+      "de": "Verdichter - Drehzahlvorgabe"
+    },
+    "unit": "%",
+    "step": 1,
+    "min": 15,
+    "max": 60,
+    "controller_id": "SP432",
+    "mode": "writeable",
+    "remark": "%0 (*2) / Der Registerwert wird übernommen, wenn am Webinterface des RCG X der PV Modus auf Off gestellt ist und eine Anforderung für externe Verdichterdrehzahlvorgabe (Register 117) ansteht. Die Verdichterdrehzahl wird vom Webregler auf ein Min. und Maximum begrenzt damit der Kompressor nicht beschädigt werden kann. Diese Grenzen liegen üblicherweise bei 15% und 60% (150 %0 und 600 %0), sie sind im Webregler einstellbar.",
+    "designation": "Verdichter - Drehzahlvorgabe",
+    "read_register_code1": 3,
+    "read_register_code2": null,
+    "write_register_code": 6
+  },
+  "externalRequest": {
+    "register_number": 127,
+    "type": "sensor",
+    "register_codes": "03,06,16",
+    "datatype": "UINT16",
+    "description": {
+      "en": "Externe Anforderung",
+      "de": "Externe Anforderung"
+    },
+    "unit": "number",
+    "step": 1,
+    "min": 0,
+    "max": 1,
+    "controller_id": "MP27",
+    "mode": "writeable",
+    "remark": "entspricht dem digitalen Eingang am Webregler",
+    "designation": "Externe Anforderung",
+    "read_register_code1": 3,
+    "read_register_code2": null,
+    "write_register_code": 6
+  },
+  "resetFault": {
+    "register_number": 128,
+    "type": "sensor",
+    "register_codes": "03,06,16",
+    "datatype": "UINT16",
+    "description": {
+      "en": "Entstören",
+      "de": "Entstören"
+    },
+    "unit": "number",
+    "step": 1,
+    "min": 0,
+    "max": 1,
+    "controller_id": "SP14",
+    "mode": "writeable",
+    "remark": "0 oder 1",
+    "designation": "Entstören",
+    "read_register_code1": 3,
+    "read_register_code2": null,
+    "write_register_code": 6
+  },
+  "outsideTempValue": {
+    "register_number": 129,
+    "type": "sensor",
+    "register_codes": "03,06,16",
+    "datatype": "INT16",
+    "description": {
+      "en": "Außentemperatur Wert",
+      "de": "Außentemperatur Wert"
+    },
+    "unit": "°C",
+    "step": 0.1,
+    "min": 15,
+    "max": 25,
+    "controller_id": "MP0",
+    "mode": "writeable",
+    "remark": "Einheit in 0,1°C",
+    "designation": "Außentemperatur Wert",
+    "read_register_code1": 3,
+    "read_register_code2": null,
+    "write_register_code": 6
+  },
+  "outsideTempActive": {
+    "register_number": 130,
+    "type": "sensor",
+    "register_codes": "03,06,16",
+    "datatype": "UINT16",
+    "description": {
+      "en": "Außentemperatur aktiv",
+      "de": "Außentemperatur aktiv"
+    },
+    "unit": "number",
+    "step": 1,
+    "min": 0,
+    "max": 1,
+    "controller_id": "MP0",
+    "mode": "writeable",
+    "remark": "0 oder 1",
+    "designation": "Außentemperatur aktiv",
+    "read_register_code1": 3,
+    "read_register_code2": null,
+    "write_register_code": 6
+  },
+  "bufferTempValue": {
+    "register_number": 131,
+    "type": "sensor",
+    "register_codes": "03,06,16",
+    "datatype": "INT16",
+    "description": {
+      "en": "Puffertemperatur Wert",
+      "de": "Puffertemperatur Wert"
+    },
+    "unit": "°C",
+    "step": 0.1,
+    "min": 15,
+    "max": 25,
+    "controller_id": "MP5",
+    "mode": "writeable",
+    "remark": "Einheit in 0,1°C",
+    "designation": "Puffertemperatur Wert",
+    "read_register_code1": 3,
+    "read_register_code2": null,
+    "write_register_code": 6
+  },
+  "bufferTempActive": {
+    "register_number": 132,
+    "type": "sensor",
+    "register_codes": "03,06,16",
+    "datatype": "UINT16",
+    "description": {
+      "en": "Puffertemperatur aktiv",
+      "de": "Puffertemperatur aktiv"
+    },
+    "unit": "number",
+    "step": 1,
+    "min": 0,
+    "max": 1,
+    "controller_id": "MP5",
+    "mode": "writeable",
+    "remark": "muss auf 1 geschrieben werden, damit das Register 131 übernommen wird",
+    "designation": "Puffertemperatur aktiv",
+    "read_register_code1": 3,
+    "read_register_code2": null,
+    "write_register_code": 6
+  },
+  "domesticHotWaterTempValue": {
+    "register_number": 133,
+    "type": "sensor",
+    "register_codes": "03,06,16",
+    "datatype": "INT16",
+    "description": {
+      "en": "Brauchwassertemp. Wert",
+      "de": "Brauchwassertemp. Wert"
+    },
+    "unit": "°C",
+    "step": 0.1,
+    "min": 15,
+    "max": 25,
+    "controller_id": "MP2",
+    "mode": "writeable",
+    "remark": "Einheit in 0,1°C",
+    "designation": "Brauchwassertemp. Wert",
+    "read_register_code1": 3,
+    "read_register_code2": null,
+    "write_register_code": 6
+  },
+  "domesticHotWaterTempActive": {
+    "register_number": 134,
+    "type": "sensor",
+    "register_codes": "03,06,16",
+    "datatype": "UINT16",
+    "description": {
+      "en": "Brauchwassertemp. aktiv",
+      "de": "Brauchwassertemp. aktiv"
+    },
+    "unit": "number",
+    "step": 1,
+    "min": 0,
+    "max": 1,
+    "controller_id": "MP2",
+    "mode": "writeable",
+    "remark": "muss auf 1 geschrieben werden, damit das Register 133 übernommen wird",
+    "designation": "Brauchwassertemp. aktiv",
+    "read_register_code1": 3,
+    "read_register_code2": null,
+    "write_register_code": 6
+  },
+  "secondStageValue": {
+    "register_number": 147,
+    "type": "sensor",
+    "register_codes": "03,06,16",
+    "datatype": "INT16",
+    "description": {
+      "en": "2. Stufe Wert",
+      "de": "2. Stufe Wert"
+    },
+    "unit": "number",
+    "step": 1,
+    "min": 0,
+    "max": 1,
+    "controller_id": "---",
+    "mode": "writeable",
+    "remark": "Eingeschaltet, wenn<> 0",
+    "designation": "2. Stufe Wert",
+    "read_register_code1": 3,
+    "read_register_code2": null,
+    "write_register_code": 6
+  },
+  "secondStageActive": {
+    "register_number": 148,
+    "type": "sensor",
+    "register_codes": "03,06,16",
+    "datatype": "INT16",
+    "description": {
+      "en": "2. Stufe Aktiv",
+      "de": "2. Stufe Aktiv"
+    },
+    "unit": "number",
+    "step": 1,
+    "min": 0,
+    "max": 1,
+    "controller_id": "---",
+    "mode": "writeable",
+    "remark": "0 oder 1",
+    "designation": "2. Stufe Aktiv",
+    "read_register_code1": 3,
+    "read_register_code2": null,
+    "write_register_code": 6
+  },
+  "evuReleaseValue": {
+    "register_number": 149,
+    "type": "sensor",
+    "register_codes": "03,06,16",
+    "datatype": "INT16",
+    "description": {
+      "en": "EVU- Freigabe Wert",
+      "de": "EVU- Freigabe Wert"
+    },
+    "unit": "number",
+    "step": 1,
+    "min": 0,
+    "max": 1,
+    "controller_id": "---",
+    "mode": "writeable",
+    "remark": "wird ein Wert <> 0 geschrieben ist eine WP­ Anforderung freigegeben, wird der Wert 0 geschrieben ist eine WP­ Anforderung blockiert",
+    "designation": "EVU- Freigabe Wert",
+    "read_register_code1": 3,
+    "read_register_code2": null,
+    "write_register_code": 6
+  },
+  "evuReleaseActive": {
+    "register_number": 150,
+    "type": "sensor",
+    "register_codes": "03,06,16",
+    "datatype": "INT16",
+    "description": {
+      "en": "EVU- Freigabe aktiv",
+      "de": "EVU- Freigabe aktiv"
+    },
+    "unit": "number",
+    "step": 1,
+    "min": 0,
+    "max": 1,
+    "controller_id": "---",
+    "mode": "writeable",
+    "remark": "muss auf 1 geschrieben werden, damit das Register 149 übernommen wird",
+    "designation": "EVU- Freigabe aktiv",
+    "read_register_code1": 3,
+    "read_register_code2": null,
+    "write_register_code": 6
+  } 
+},
+  "combinedSensors": {
+    "makeHotWater": {
+    "attribute_from_register": {
+      "min": "wwMinimaltemp",
+      "max": "wwNormaltemp"
+    },
+    "type": "climate",
+    "description": {
+      "en": "Hotwater Minimal- and Normaltemperature",
+      "de": "Warmwasser Minimal- und Normaltemperatur"
+    },
+    "unit": "°C",
+    "step": 0.1
+      }
+  }
+  
+}
+
+

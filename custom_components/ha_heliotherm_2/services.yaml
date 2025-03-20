@@ -1,0 +1,9 @@
+set_room_temperature:
+  description: 'Set the room temperature using the heat pump'
+  fields:
+    device_id:
+      description: 'Device ID of the heat pump'
+      example: 'living_room_heat_pump_001'
+    temperature:
+      description: 'The target room temperature to set'
+      example: 22.5
