@@ -106,6 +106,43 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 class OptionsFlowHandler(config_entries.OptionsFlow):
     def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
         """Initialize options flow."""
+        self.config_entry = config_entry  # This line will be removed or handled differently in the future
+
+    async def async_step_init(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        """Manage the options."""
+        import homeassistant.helpers.config_validation as cv
+        import voluptuous as vol
+
+        if user_input is not None:
+            user_input[CONF_NAME] = self.config_entry.data[CONF_NAME]
+            self.hass.config_entries.async_update_entry(
+                self.config_entry, data={**self.config_entry.data, **user_input}
+            )
+            await self.hass.config_entries.async_reload(self.config_entry.entry_id)
+            return self.async_create_entry(title="", data={})
+
+        return self.async_show_form(
+            step_id="init",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(CONF_HOST, default=self.config_entry.data[CONF_HOST]): cv.string,
+                    vol.Required(CONF_PORT, default=self.config_entry.data[CONF_PORT]): cv.string,
+                    vol.Required(
+                        CONF_ACCESS_MODE,
+                        default=self.config_entry.data.get(CONF_ACCESS_MODE, DEFAULT_ACCESS_MODE)
+                    ): vol.In(ACCESS_MODES),
+                    vol.Required(
+                        CONF_DISPLAY_LANGUAGE,
+                        default=self.config_entry.data.get(CONF_DISPLAY_LANGUAGE, DEFAULT_LANGUAGE)
+                    ): vol.In(LANGUAGES),
+                }
+            ),
+        )
+
+    def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
+        """Initialize options flow."""
         self.config_entry = config_entry
 
     async def async_step_init(

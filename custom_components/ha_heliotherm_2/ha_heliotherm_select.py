@@ -31,10 +31,23 @@ class HeliothermSelect(HaHeliothermBaseEntity, SelectEntity):
         """Return the selected entity option to represent the entity state."""
         return self._attr_current_option
 
+    # async def async_select_option(self, option: str, register_key=None) -> None:
+    #     """Change the selected option."""
+    #     self._attr_current_option = option
+    #     await self._hub.setter_function_callback(self, option, register_key)
+        
     async def async_select_option(self, option: str) -> None:
-        """Change the selected option."""
+        """Change the selected option and send additional data."""
         self._attr_current_option = option
-        await self._hub.setter_function_callback(self, option)
+
+        # Define custom data to send when the selection changes
+        custom_data = {
+            "register_key": self._register_key,
+            "device_id": self.device_info.get("identifiers"),
+        }
+
+        # Call the hub function with extra data
+        await self._hub.setter_function_callback(self, option, custom_data)
 
     async def async_added_to_hass(self):
         """Register callbacks."""

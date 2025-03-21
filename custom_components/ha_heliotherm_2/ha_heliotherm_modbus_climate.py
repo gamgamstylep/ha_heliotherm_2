@@ -88,31 +88,46 @@ class HaHeliothermModbusClimate(HaHeliothermBaseEntity, ClimateEntity):
             "temperature_range": f"{self.min_temp}-{self.max_temp}°C"  # Use properties instead of attributes
         }
         
-    async def async_set_temperature(self, **kwargs):
-        """Set the target temperature for the climate entity."""
-        temperature = kwargs.get(ATTR_TEMPERATURE)
-        if temperature is None:
-            _LOGGER.warning("No temperature provided to set.")
-            return
+    # async def async_set_temperature(self, **kwargs):
+    #     """Set the target temperature for the climate entity."""
+    #     temperature = kwargs.get(ATTR_TEMPERATURE)
+    #     if temperature is None:
+    #         _LOGGER.warning("No temperature provided to set.")
+    #         return
         
-        if self.min_temp <= temperature <= self.max_temp:
-            _LOGGER.debug(f"Setting temperature to {temperature}")
-            self._temperature = temperature
-            self.async_write_ha_state()
-        else:
-            _LOGGER.warning(f"Attempted to set out-of-range temperature: {temperature}")
-            raise ValueError(
-                f"Temperature {temperature} is out of range ({self.min_temp}-{self.max_temp})"
-            )
+    #     if self.min_temp <= temperature <= self.max_temp:
+    #         _LOGGER.debug(f"Setting temperature to {temperature}")
+    #         self._temperature = temperature
+    #         self.async_write_ha_state()
+    #     else:
+    #         _LOGGER.warning(f"Attempted to set out-of-range temperature: {temperature}")
+    #         raise ValueError(
+    #             f"Temperature {temperature} is out of range ({self.min_temp}-{self.max_temp})"
+    #         )
+            
+    async def async_set_temperature(self, **kwargs) -> None:
+        """Set new target temperature."""
+        if "temperature" in kwargs:
+            self._attr_current_temperature = float(kwargs["temperature"])
+            self._attr_target_temperature = float(kwargs["temperature"])
+        if "target_temp_low" in kwargs:
+            self._attr_target_temperature_low = float(kwargs["target_temp_low"])
+        if "target_temp_high" in kwargs:
+            self._attr_target_temperature_high = float(kwargs["target_temp_high"])
+        custom_data = {
+            "register_key": self._register_key,
+            "device_id": self.device_info.get("identifiers"),
+        }
+        self.hass.add_job(self._hub.setter_function_callback(self, kwargs, custom_data))
             
 
-    async def async_update(self):
-        """Update the entity state by reading values from the device."""
-        new_temperature = self._hub.data.get(self._register_key)
+    # async def async_update(self):
+    #     """Update the entity state by reading values from the device."""
+    #     new_temperature = self._hub.data.get(self._register_key)
         
-        if new_temperature is not None:
-            self._temperature = new_temperature
-            self.async_write_ha_state()
-        else:
-            _LOGGER.warning(f"No data found for key {self._register_key} in hub {self._hub_name}")
+    #     if new_temperature is not None:
+    #         self._temperature = new_temperature
+    #         self.async_write_ha_state()
+    #     else:
+    #         _LOGGER.warning(f"No data found for key {self._register_key} in hub {self._hub_name}")
 
