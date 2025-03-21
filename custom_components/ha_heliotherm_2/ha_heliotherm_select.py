@@ -1,4 +1,4 @@
-from homeassistant.components.select import SelectEntity
+from homeassistant.components.select import SelectEntity, SelectEntityDescription
 from homeassistant.core import callback
 from .ha_heliotherm_base_entity import HaHeliothermBaseEntity
 
@@ -20,6 +20,11 @@ class HeliothermSelect(HaHeliothermBaseEntity, SelectEntity):
         super().__init__(platform_name, hub, device_info, register, register_key, display_language)  # Update this line
         self._attr_options = options
         self._attr_current_option = default_value
+        self.entity_description = SelectEntityDescription(
+            key=register_key,
+            name=self.name,  # Corrected line
+            options=options,
+        )
 
     @property
     def current_option(self) -> str | None:

@@ -8,6 +8,7 @@ import threading
 from typing import Optional
 import json
 import aiofiles
+import inspect
 import os
 import logging
 
@@ -88,6 +89,8 @@ async def async_setup(hass, config):
     hass.data[DOMAIN]["wp_registers"] = filtered_registers
     hass.data[DOMAIN]["wp_config"] = wp_json_config_data["config"]
     hass.data[DOMAIN]["wp_combined_sensors"] = wp_json_config_data["combined_sensors"]
+    if wp_json_config_data["config"]["logging"]["level"] == "DEBUG":
+      _LOGGER.setLevel(logging.DEBUG)
     config_wp_registers = hass.data[DOMAIN]["wp_registers"]
     wp_config = hass.data[DOMAIN]["wp_config"]
     async def set_room_temperature_service(call):
@@ -380,20 +383,18 @@ class HaHeliothermModbusHub:
     #     return None
 
     async def setter_function_callback(self, entity: Entity, option):
-        if self._access_mode == "read_only":
-            _LOGGER.warning("Write operation attempted in read-only mode.")
-            return
-
-        if entity.entity_description.key == "operatingMode":
+        _LOGGER.debug(f"Setter function callback for {entity.entity_description.key} with option {option}")
+        if entity.entity_description.key == "operating_mode":
+            _LOGGER.debug(f"Setting operating mode to {option}")
             await self.set_operatingMode(option)
             return
-        if entity.entity_description.key == "mkr1OperatingMode":
+        if entity.entity_description.key == "mkr1_operating_mode":
             await self.set_mkr1_operatingMode(option)
             return
-        if entity.entity_description.key == "mkr2OperatingMode":
+        if entity.entity_description.key == "mkr2_operating_mode":
             await self.set_mkr2_betriebsart(option)
             return
-        if entity.entity_description.key == "desiredRoomTemperature":
+        if entity.entity_description.key == "desired_room_temperature":
             temp = float(option["temperature"])
             await self.set_roomTemperature(temp)
             
@@ -405,70 +406,94 @@ class HaHeliothermModbusHub:
             tmin = float(option["target_temp_low"])
             tmax = float(option["target_temp_high"])
             await self.set_ww_bereitung(tmin, tmax)
+        _LOGGER.warning(f"Setter function callback not implemented for {entity.entity_description.key}")
 
     async def set_operatingMode(self, operation_mode: str):
-      if self._access_mode == "read_only":
-            _LOGGER.warning("Write operation attempted in read-only mode.")
-            return
+      _LOGGER.debug(f"Trying to set {operation_mode}")
       betriebsart_nr = self.getOperatingMode(operation_mode)
       if betriebsart_nr is None:
           return
       config_registers = self._hass.data[DOMAIN]["wp_registers"]
       config = config_registers["operatingMode"]
-      self._client.write_register(address=config["register_number"], value=betriebsart_nr, slave=self._hass.data[DOMAIN]["wp_config"]["slave_id"])
+      function_name = inspect.currentframe().f_code.co_name
+      myAddress = config["register_number"]
+      myValue = int(betriebsart_nr)
+      mySlave = self._hass.data[DOMAIN]["wp_config"]["slave_id"]
+      _LOGGER.debug(f"Setting for {function_name} to {operation_mode} with value {myValue}")
+      if self._access_mode == "read_only":
+            _LOGGER.warning("Write operation attempted in read-only mode for {function_name} to {operation_mode} with value {myValue}.")
+            return
+      self._client.write_register(address=myAddress, value=myValue, slave=mySlave)
       await self.async_refresh_modbus_data()
 
     async def set_mkr1_operatingMode(self, betriebsart: str):
-        if self._access_mode == "read_only":
-            _LOGGER.warning("Write operation attempted in read-only mode.")
-            return
+        
         betriebsart_nr = self.getOperatingMode(betriebsart)
         if betriebsart_nr is None:
             return
         config_data = self._hass.data[DOMAIN]["wp_registers"]
         config = config_data["mkr1OperatingMode"]
-        
-        self._client.write_register(address=config["register_number"], value=betriebsart_nr, slave=self._hass.data[DOMAIN]["wp_config"]["slave_id"])
+        myFunctionName = inspect.currentframe().f_code.co_name
+        myAddress = config["register_number"]
+        myValue = int(betriebsart_nr)
+        mySlave = self._hass.data[DOMAIN]["wp_config"]["slave_id"]
+        _LOGGER.debug("Write operation attempted in read-only mode for {myFunctionName} to {operation_mode} with value {myValue}.")
+        if self._access_mode == "read_only":
+            _LOGGER.warning("Write operation attempted in read-only mode for {myFunctionName} to {operation_mode} with value {myValue}.")
+            return
+        self._client.write_register(address=myAddress, value=myValue, slave=mySlave)
         await self.async_refresh_modbus_data()
 
     async def set_mkr2_betriebsart(self, betriebsart: str):
       # 112
-        if self._access_mode == "read_only":
-            _LOGGER.warning("Write operation attempted in read-only mode.")
-            return
         betriebsart_nr = self.getOperatingMode(betriebsart)
         if betriebsart_nr is None:
             return
         config_data = self._hass.data[DOMAIN]["wp_registers"]
         config = config_data["mkr2OperatingMode"]
-        
-        self._client.write_register(address=config["register_number"], value=betriebsart_nr, slave=1)
+        myFunctionName = inspect.currentframe().f_code.co_name
+        myAddress = config["register_number"]
+        myValue = int(betriebsart_nr)
+        mySlave = self._hass.data[DOMAIN]["wp_config"]["slave_id"]
+        _LOGGER.debug("Write operation attempted in read-only mode for {myFunctionName} to {operation_mode} with value {myValue}.")
+        if self._access_mode == "read_only":
+            _LOGGER.warning("Write operation attempted in read-only mode for {myFunctionName} to {operation_mode} with value {myValue}.")
+            return
+        self._client.write_register(address=myAddress, value=myValue, slave=mySlave)
         await self.async_refresh_modbus_data()
 
     async def set_roomTemperature(self, temperature: float):
         # 101
-        if self._access_mode == "read_only":
-            _LOGGER.warning("Write operation attempted in read-only mode.")
-            return
         if temperature is None:
             return
         temp_int = int(temperature * 10)
         config_data = self._hass.data[DOMAIN]["wp_registers"]
         config = config_data["desiredRoomTemperature"]
-        self._client.write_register(address=config["register_number"], value=temp_int, slave=1)
+        myFunctionName = inspect.currentframe().f_code.co_name
+        myAddress = config["register_number"]
+        myValue = int(temp_int)
+        mySlave = self._hass.data[DOMAIN]["wp_config"]["slave_id"]
+        if self._access_mode == "read_only":
+            _LOGGER.warning("Write operation attempted in read-only mode for {myFunctionName} to {operation_mode} with value {myValue}.")
+            return
+        self._client.write_register(address=myAddress, value=myValue, slave=mySlave)
         await self.async_refresh_modbus_data()
 
     async def set_rltkuehlen(self, temperature: float):
       # 104
-        if self._access_mode == "read_only":
-            _LOGGER.warning("Write operation attempted in read-only mode.")
-            return
         if temperature is None:
             return
         temp_int = int(temperature * 10)
         config_data = self._hass.data[DOMAIN]["wp_registers"]
         config = config_data["rltMinKuelung"]
-        self._client.write_register(address=config["register_number"], value=temp_int, slave=1)
+        myFunctionName = inspect.currentframe().f_code.co_name
+        myAddress = config["register_number"]
+        myValue = int(temp_int)
+        mySlave = self._hass.data[DOMAIN]["wp_config"]["slave_id"]
+        if self._access_mode == "read_only":
+            _LOGGER.warning("Write operation attempted in read-only mode for {myFunctionName} to {operation_mode} with value {myValue}.")
+            return
+        self._client.write_register(address=myAddress, value=myValue, slave=mySlave)
         await self.async_refresh_modbus_data()
 
     async def set_ww_bereitung(self, temp_min: float, temp_max: float):
@@ -482,6 +507,15 @@ class HaHeliothermModbusHub:
         config_data = self._hass.data[DOMAIN]["wp_registers"]
         config_max = config_data["wwNormaltemp"] # 105
         config_min = config_data["wwMinimaltemp"] # 106
-        self._client.write_register(address=config_max["register_number"], value=temp_max_int, slave=1)
+        myFunctionName = inspect.currentframe().f_code.co_name
+        myAddress = config_max["register_number"]
+        myValue = int(temp_max_int)
+        mySlave = self._hass.data[DOMAIN]["wp_config"]["slave_id"]
+        _LOGGER.debug(f"Setting for {myFunctionName} min to {config_data["wwMinimaltemp"]["wwMinimaltemp"]} with value {temp_min_int}")
+        _LOGGER.debug(f"Setting for {myFunctionName} max to {myAddress} with value {myValue}")
+        if self._access_mode == "read_only":
+            _LOGGER.warning("Write operation attempted in read-only mode for {myFunctionName} to {operation_mode} with value {myValue}.")
+            return
+        self._client.write_register(address=myAddress, value=myValue, slave=mySlave)
         self._client.write_register(address=config_min["register_number"], value=temp_min_int, slave=1)
         await self.async_refresh_modbus_data()

@@ -28,7 +28,7 @@
     "update_interval": 60,
     "logging": {
       "enabled": true,
-      "level": "info"
+      "level": "DEBUG"
     },
     "reading_registers_begin": 10,
     "reading_registers_end": 99,
@@ -860,6 +860,7 @@
   "thermal_heating_energy_heating_mode2": {
     "register_number": 61,
     "type": "sensor",
+    "device_class": "negative_energy",
     "register_codes": 4,
     "data_type": "uint32",
     "description": {

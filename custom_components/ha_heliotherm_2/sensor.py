@@ -33,7 +33,8 @@ UNIT_MAPPING = {
         "default": (UnitOfPressure.BAR, SensorDeviceClass.PRESSURE, SensorStateClass.MEASUREMENT)
     },
     "kW/h": {
-        "default": (UnitOfEnergy.KILO_WATT_HOUR, SensorDeviceClass.ENERGY, SensorStateClass.TOTAL_INCREASING)
+        "default": (UnitOfEnergy.KILO_WATT_HOUR, SensorDeviceClass.ENERGY, SensorStateClass.TOTAL_INCREASING),
+        "negative_energy": (UnitOfEnergy.KILO_WATT_HOUR, SensorDeviceClass.ENERGY, SensorStateClass.TOTAL),
     },
     "h": {
         "default": (UnitOfTime.HOURS, None, SensorStateClass.MEASUREMENT)
