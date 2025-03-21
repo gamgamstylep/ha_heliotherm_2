@@ -22,7 +22,7 @@ class HeliothermSelect(HaHeliothermBaseEntity, SelectEntity):
         self._attr_current_option = default_value
         self.entity_description = SelectEntityDescription(
             key=register_key,
-            name=self.name,  # Corrected line
+            name=self.name, 
             options=options,
         )
 

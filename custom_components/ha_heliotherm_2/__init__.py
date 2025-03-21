@@ -326,18 +326,22 @@ class HaHeliothermModbusHub:
                     register_value = modbusdata_holding_registers_values[register_number]
                 #if register_number > wp_config["holding_registers_begin"]:
                 #_LOGGER.debug(f"Key {wp_register_key} Register {register_number} Registerwert: {register_value}")
+                multiplier = wp_register_object.get("multiplier", 1)
                 if register_value is not None:
                     if wp_register_object["type"] == "boolean":
                         self.data[wp_register_key] = self.get_boolean_state(register_value, wp_register_key)
                     elif wp_register_object["type"] == "select":
                         my_options = wp_register_object["options"]
                         self.data[wp_register_key] = self.get_operating_mode_string(register_value,my_options)
+                    elif wp_register_object["type"] == "climate":
+                        _LOGGER.debug(f"Climate register: {wp_register_key} with value {register_value}")
+                        self.data[wp_register_key] = self.checkval(register_value, multiplier)
                     elif wp_register_object["data_type"] == "INT16":
-                        self.data[wp_register_key] = self.checkval(register_value, step)
+                        self.data[wp_register_key] = self.checkval(register_value, multiplier)
                     elif wp_register_object["type"] == "energy":
                         self.data[wp_register_key] = self.decode_energy_data(register_value, wp_register_key)
                     else: 
-                        self.data[wp_register_key] = self.checkval(register_value, step)
+                        self.data[wp_register_key] = self.checkval(register_value, multiplier)
                 else:
                     _LOGGER.error(f"Register {register_number} not found for {wp_register_key}")
 
@@ -379,12 +383,12 @@ class HaHeliothermModbusHub:
         else:
             return number & mask
 
-    def checkval(self, value, scale, bitlength=16):
+    def checkval(self, value, multiplier, bitlength=16):
         """Check value for missing item"""
         if value is None:
             return None
         value = self.getsignednumber(value, bitlength)
-        value = round(value * scale, 1)
+        value = round(value * multiplier, 1)
         if value == -50.0:
             value = None
         return value
@@ -415,19 +419,23 @@ class HaHeliothermModbusHub:
         register_key = custom_data.get("register_key")
         if entity.entity_description.key == "operating_mode":
             _LOGGER.debug(f"Setting operating mode to {option}")
-            await self.set_operatingMode(option, register_key)
+            await self.set_operating_mode(option, register_key)
             return
         if entity.entity_description.key == "mkr1_operating_mode":
-            await self.set_operatingMode(option, register_key)
+            await self.set_operating_mode(option, register_key)
             return
         if entity.entity_description.key == "mkr2_operating_mode":
-            await self.set_operatingMode(option, register_key)
+            await self.set_operating_mode(option, register_key)
             return
         if entity.entity_description.key == "desired_room_temperature":
             temp = float(option["temperature"])
-            await self.set_roomTemperature(temp, register_key)
+            await self.set_room_temperature(temp, register_key)
+        
+        if entity.entity_description.key == "ww_normaltemp_loeschen":
+            temp = float(option["temperature"])
+            await self.ww_normaltemp(temp, register_key)
             
-        if entity.entity_description.key == "rltMinCooling":
+        if entity.entity_description.key == "rlt_min_cooling":
             temp = float(option["temperature"])
             await self.set_rltkuehlen(temp, register_key)
 
@@ -437,7 +445,7 @@ class HaHeliothermModbusHub:
             await self.set_ww_bereitung(tmin, tmax, register_key)
         _LOGGER.warning(f"Setter function callback not implemented for {entity.entity_description.key}")
 
-    async def set_operatingMode(self, operation_mode: str, register_id):
+    async def set_operating_mode(self, operation_mode: str, register_id):
       _LOGGER.debug(f"Trying to set {operation_mode} for {register_id}")
       #register_id = "operating_mode"
       config_data = self._hass.data[DOMAIN]["wp_registers"]
@@ -463,19 +471,21 @@ class HaHeliothermModbusHub:
       await self.write_register_with_protection(address=myAddress, value=myValue, slave=mySlave, register_id=register_id)
       await self.async_refresh_modbus_data()
 
-    async def set_roomTemperature(self, temperature: float, register_id):
+    async def set_room_temperature(self, temperature: float, register_id):
         # 101
+        my_function_name = inspect.currentframe().f_code.co_name
         if temperature is None:
+            _LOGGER.error(f"{my_function_name:} No temperature provided to set for {register_id}")
             return
-        temp_int = int(temperature * 10)
+        _LOGGER.debug(f"Trying to set {temperature} for {register_id}")
+        
         config_data = self._hass.data[DOMAIN]["wp_registers"]
-        config = config_data["desiredRoomTemperature"]
-        myFunctionName = inspect.currentframe().f_code.co_name
+        config = config_data[register_id]
         myAddress = config["register_number"]
-        myValue = int(temp_int)
+        myValue = int(temperature / config.get("multiplier", 1))
         mySlave = self._hass.data[DOMAIN]["wp_config"]["slave_id"]
         if self._access_mode == "read_only":
-            _LOGGER.warning(f"Write operation attempted in read-only mode for {myFunctionName} to {register_id} to myAddress {myAddress} with value {myValue}.")
+            _LOGGER.warning(f"Write operation attempted in read-only mode for {my_function_name} to {register_id} to myAddress {myAddress} with value {myValue}.")
             return
         await self.write_register_with_protection(address=myAddress, value=myValue, slave=mySlave, register_id=register_id)
         await self.async_refresh_modbus_data()
