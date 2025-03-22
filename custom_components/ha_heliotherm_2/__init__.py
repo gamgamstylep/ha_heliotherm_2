@@ -1,4 +1,7 @@
-"""The HaHeliotherm integration."""
+"""The HaHeliotherm_2 integration."""
+# Issues:
+# 1. Config read only or read/write cannot be changed after initial setup
+# setter_function_callback should work automatically for all entities
 from __future__ import annotations
 
 import asyncio
@@ -44,9 +47,6 @@ JSON_PATH = os.path.join(BASE_DIR, "heliotherm_config.json")
 
 from .const import DEFAULT_NAME, DEFAULT_SCAN_INTERVAL, DOMAIN, CONF_ACCESS_MODE, CONF_DISPLAY_LANGUAGE
 
-
-# PLATFORMS = [Platform.SENSOR, Platform.BINARY_SENSOR, Platform.SELECT]
-#PLATFORMS = [Platform.SELECT, Platform.SENSOR, Platform.BINARY_SENSOR, Platform.CLIMATE]
 
 config_file_path = JSON_PATH
 
@@ -136,11 +136,6 @@ async def async_setup(hass, config):
 
     return True
 
-
-    # Example: Logging the loaded config (you can replace this with actual entity setup)
-    #_LOGGER.debug(f"Loaded configuration: {wp_json_config_data}")  # Update this line
-    return True
-
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     """Set up a HaHeliotherm modbus."""
     host = entry.data[CONF_HOST]
@@ -156,9 +151,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     hub = HaHeliothermModbusHub(hass, name, host, port, scan_interval, access_mode, display_language)
     # """Register the hub."""
     hass.data[DOMAIN][name] = {"hub": hub}
-    # await hass.config_entries.async_forward_entry_setup(entry, "sensor")  # old
-    #await hass.config_entries.async_forward_entry_setups(entry, ["sensor"]) # new
-    #await hass.config_entries.async_forward_entry_setups(entry, ["sensor", "binary_sensor", "climate"])
+
     await hass.config_entries.async_forward_entry_setups(entry, ["sensor", "binary_sensor", "climate", "select"])
     return True
 
@@ -366,16 +359,6 @@ class HaHeliothermModbusHub:
         register_value = modbusdata_values.get(key)
         return register_value * scale if register_value else None
 
-    # def read_input_registers(self, address, count, slave):
-    #     """Read input registers with error handling."""
-    #     with self._lock:
-    #         _LOGGER.debug(f"Reading input registers: address={address}, count={count}, slave={slave}")
-    #         try:
-    #             return self._client.read_input_registers(address=address, count=count, slave=slave)
-    #         except Exception as e:
-    #             _LOGGER.error(f"Error reading input registers: {e}")
-    #             return None  # Oder eine geeignete Fehlerbehandlung
-
     def getsignednumber(self, number, bitlength=16):
         mask = (2**bitlength) - 1
         if number & (1 << (bitlength - 1)):
@@ -406,13 +389,6 @@ class HaHeliothermModbusHub:
       options_reversed = {v: k for k, v in options.items()}
       _LOGGER.debug(f"Options: {options_reversed}")
       return options_reversed.get(operating_mode_name)  # Lookup by string key
-    # def getbetriebsartnr(self, operating_mode_str: str):
-    #     config_data = self._hass.data[DOMAIN]["wp_registers"]
-    #     options = config_data["operatingMode"]["options"]
-    #     for key, value in options.items():
-    #         if value == operating_mode_str:
-    #             return int(key)
-    #     return None
 
     async def setter_function_callback(self, entity: Entity, option, custom_data):
         _LOGGER.debug(f"Setter function callback for {entity.entity_description.key} with option {option}")
@@ -429,17 +405,25 @@ class HaHeliothermModbusHub:
             return
         if entity.entity_description.key == "desired_room_temperature":
             temp = float(option["temperature"])
-            await self.set_room_temperature(temp, register_key)
-        
+            await self.set_temperature(temp, register_key)
+            
+        if entity.entity_description.key == "ww_normaltemp":
+            temp = float(option["temperature"])
+            await self.set_temperature(temp, register_key)
+            
+        if entity.entity_description.key == "ww_minimaltemp":
+            temp = float(option["temperature"])
+            await self.set_temperature(temp, register_key)
+
         if entity.entity_description.key == "ww_normaltemp_loeschen":
             temp = float(option["temperature"])
-            await self.ww_normaltemp(temp, register_key)
+            await self.set_temperature(temp, register_key)
             
-        if entity.entity_description.key == "rlt_min_cooling":
+        if entity.entity_description.key == "rlt_min_cooling_not_ready":
             temp = float(option["temperature"])
             await self.set_rltkuehlen(temp, register_key)
 
-        if entity.entity_description.key == "makeHotWater":
+        if entity.entity_description.key == "makeHotWater_not_ready":
             tmin = float(option["target_temp_low"])
             tmax = float(option["target_temp_high"])
             await self.set_ww_bereitung(tmin, tmax, register_key)
@@ -471,7 +455,7 @@ class HaHeliothermModbusHub:
       await self.write_register_with_protection(address=myAddress, value=myValue, slave=mySlave, register_id=register_id)
       await self.async_refresh_modbus_data()
 
-    async def set_room_temperature(self, temperature: float, register_id):
+    async def set_temperature(self, temperature: float, register_id):
         # 101
         my_function_name = inspect.currentframe().f_code.co_name
         if temperature is None:
