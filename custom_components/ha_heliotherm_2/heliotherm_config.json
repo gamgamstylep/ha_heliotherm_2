@@ -14,6 +14,7 @@
     "model": "Heliotherm",
     "default_port": 502,
     "slave_id": 1,
+    "heliotherm_hub": "haheliotherm_hub",
     "native_unit_of_measurement": {
       "temperature": "°C",
       "pressure": "bar",
