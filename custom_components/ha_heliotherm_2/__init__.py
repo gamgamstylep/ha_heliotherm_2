@@ -34,11 +34,7 @@ from homeassistant.const import (
     Platform,
 )
 from homeassistant.core import HomeAssistant, callback, ServiceCall
-import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.event import async_track_time_interval
-from homeassistant.components.lock import LockState
-from homeassistant.components.alarm_control_panel import AlarmControlPanelState
-from homeassistant.const import UnitOfReactivePower, UnitOfArea, UnitOfConductivity
 
 # Bestimme den Pfad zur JSON-Datei relativ zur __init__.py
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))

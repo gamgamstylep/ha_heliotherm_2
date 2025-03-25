@@ -2,15 +2,9 @@ from homeassistant.const import CONF_NAME
 from homeassistant.components.input_number import *
 
 import logging
-from typing import Optional, Dict, Any
-
-import homeassistant.util.dt as dt_util
-
 from .const import DOMAIN
-from .ha_heliotherm_modbus_sensor import HaHeliothermModbusSensor
 from .ha_heliotherm_modbus_binary_sensor import HaHeliothermModbusBinarySensor
-from .ha_heliotherm_select import HeliothermSelect
-from .ha_heliotherm_modbus_climate import HaHeliothermModbusClimate  # Add this import
+
 
 _LOGGER = logging.getLogger(__name__)
 
