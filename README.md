@@ -12,6 +12,10 @@ Lot of ideas and material from
 > This is an unofficial implementation and not supported by Heliotherm. It might stop working at any point in time.
 > You are using this module (and it's prerequisites/dependencies) at your own risk. Not me neither any of contributors to this or any prerequired/dependency project are responsible for damage in any kind caused by this project or any of its prerequsites/dependencies.
 
+Reads all Registers from <https://github.com/gamgamstylep/ha_heliotherm_2/blob/main/custom_components/ha_heliotherm_2/heliotherm_config.json>
+
+--
+
 Home Assistant Custom Component for Heliotherm Heatpumps. Also works fine with Brötje NEO heatpumps with NEO-RKM.
 
 ## Installation
