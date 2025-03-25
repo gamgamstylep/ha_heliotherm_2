@@ -1,6 +1,5 @@
 from homeassistant.components.binary_sensor import BinarySensorEntity
 from homeassistant.core import callback
-from typing import Optional
 from .ha_heliotherm_base_entity import HaHeliothermBaseEntity
 
 class HaHeliothermModbusBinarySensor(HaHeliothermBaseEntity, BinarySensorEntity):

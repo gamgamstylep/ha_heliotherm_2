@@ -1,20 +1,11 @@
-from homeassistant.const import CONF_NAME, UnitOfTemperature, UnitOfPressure, UnitOfEnergy, UnitOfTime, UnitOfPower, UnitOfVolumeFlowRate
-from homeassistant.core import callback
-from homeassistant.components.sensor import SensorEntity, SensorDeviceClass, SensorStateClass
-from homeassistant.components.binary_sensor import BinarySensorEntity
+from homeassistant.const import CONF_NAME
 from homeassistant.components.input_number import *
 
-from homeassistant.components.select import SelectEntity
 import logging
-from typing import Optional, Dict, Any
 
-import homeassistant.util.dt as dt_util
+from .const import DOMAIN
 
-from .const import DOMAIN, CONF_DISPLAY_LANGUAGE
-from .ha_heliotherm_modbus_sensor import HaHeliothermModbusSensor
-from .ha_heliotherm_modbus_binary_sensor import HaHeliothermModbusBinarySensor
 from .ha_heliotherm_select import HeliothermSelect
-from .ha_heliotherm_modbus_climate import HaHeliothermModbusClimate  # Add this import
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -23,7 +14,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
     hub = hass.data[DOMAIN][hub_name]["hub"]
     wpRegisters = hass.data[DOMAIN]["wp_registers_select"]
     wp_config = hass.data[DOMAIN]["wp_config"]
-    display_language = entry.data.get(CONF_DISPLAY_LANGUAGE, "en")
+    display_language = entry.data.get("display_language", "en")
 
     device_info = {
         "identifiers": {(DOMAIN, hub_name)},

@@ -2,7 +2,6 @@ from homeassistant.components.sensor import SensorEntity, SensorEntityDescriptio
 from pymodbus.payload import BinaryPayloadDecoder
 from pymodbus.constants import Endian
 from homeassistant.core import callback
-from typing import Optional
 from .ha_heliotherm_base_entity import HaHeliothermBaseEntity
 
 def decode_uint32(value):

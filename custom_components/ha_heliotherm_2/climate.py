@@ -10,7 +10,7 @@ from typing import Optional, Dict, Any
 
 import homeassistant.util.dt as dt_util
 
-from .const import DOMAIN, CONF_DISPLAY_LANGUAGE
+from .const import DOMAIN
 from .ha_heliotherm_modbus_sensor import HaHeliothermModbusSensor
 from .ha_heliotherm_modbus_binary_sensor import HaHeliothermModbusBinarySensor
 from .ha_heliotherm_select import HeliothermSelect
@@ -23,7 +23,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
     hub = hass.data[DOMAIN][hub_name]["hub"]
     wpRegisters = hass.data[DOMAIN]["wp_registers_climate"]
     wp_config = hass.data[DOMAIN]["wp_config"]
-    display_language = entry.data.get(CONF_DISPLAY_LANGUAGE, "en")
+    display_language = entry.data.get("display_language", "en")
 
     device_info = {
         "identifiers": {(DOMAIN, hub_name)},

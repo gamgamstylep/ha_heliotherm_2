@@ -1,5 +1,5 @@
 from homeassistant.components.climate import ClimateEntity
-from homeassistant.components.climate.const import ClimateEntityFeature, HVACMode
+from homeassistant.components.climate.const import HVACMode
 from homeassistant.core import HomeAssistant
 
 DOMAIN = "my_modbus_climate"

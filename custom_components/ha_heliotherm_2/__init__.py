@@ -45,7 +45,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 JSON_PATH = os.path.join(BASE_DIR, "heliotherm_config.json")
 
 
-from .const import DEFAULT_NAME, DEFAULT_SCAN_INTERVAL, DOMAIN, CONF_ACCESS_MODE, CONF_DISPLAY_LANGUAGE
+from .const import DOMAIN
 
 
 config_file_path = JSON_PATH
@@ -138,13 +138,17 @@ async def async_setup(hass, config):
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     """Set up a HaHeliotherm modbus."""
-    host = entry.data[CONF_HOST]
-    name = entry.data[CONF_NAME]
-    port = entry.data[CONF_PORT]
-    access_mode = entry.data.get(CONF_ACCESS_MODE, "read_only")
-    hass.data[DOMAIN]["wp_config_access_mode"] = access_mode  
-    display_language = entry.data.get(CONF_DISPLAY_LANGUAGE, "en") 
-    scan_interval = DEFAULT_SCAN_INTERVAL
+    # from initial setup GUI - config flow
+    host = entry.data[CONF_HOST] # from config flow
+    name = entry.data[CONF_NAME] # from config flow
+    port = entry.data[CONF_PORT] # from config flow
+    display_language = entry.data.get("display_language", "en") # from config flow
+    access_mode = entry.data.get("access_mode", "read_only") # from config flow
+    hass.data[DOMAIN]["wp_config_access_mode"] = access_mode
+    
+    wp_config = hass.data[DOMAIN]["wp_config"]
+    
+    scan_interval =  wp_config.get("default_scan_interval")
 
     _LOGGER.debug("Setup %s.%s", DOMAIN, name)
 

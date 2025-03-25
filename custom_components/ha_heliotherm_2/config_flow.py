@@ -9,7 +9,7 @@ from homeassistant.const import CONF_HOST, CONF_NAME, CONF_PORT
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.data_entry_flow import FlowResult
 
-from .const import DOMAIN, DEFAULT_NAME, DEFAULT_PORT
+from .const import DOMAIN, DEFAULT_PORT, DEFAULT_NAME
 
 _LOGGER = logging.getLogger(__name__)
 
