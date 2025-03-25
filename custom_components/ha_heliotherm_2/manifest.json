@@ -1,5 +1,5 @@
 {  
-  "domain": "ha_heliotherm2",
+  "domain": "ha_heliotherm_2",
   "name": "HaHeliotherm2",
   "codeowners": ["@gamgamstylep"],
   "config_flow": true,
@@ -13,6 +13,6 @@
   ],
   "logo": "logo.png",
   "ssdp": [],
-  "version": "1.0.40",
+  "version": "1.0.41",
   "zeroconf": []  
 }

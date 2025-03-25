@@ -1,13 +1,13 @@
 {
   "config": {
-    "name": "ha_heliotherm2",
+    "name": "ha_heliotherm_2",
     "version": "0.7",
     "description": "Heliotherm heat pump integration for Home Assistant",
     "information": {
       "en": "Heliotherm heat pump integration for Home Assistant",
       "de": "Heliotherm Wärmepumpenintegration für Home Assistant"
     },
-    "domain": "ha_heliotherm2",
+    "domain": "ha_heliotherm_2",
     "display_language_default": "en",
     "display_language": "de",
     "manufacturer": "Heliotherm",

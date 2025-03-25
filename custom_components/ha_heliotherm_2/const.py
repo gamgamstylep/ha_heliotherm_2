@@ -1,6 +1,6 @@
 """Constants for the HaHeliotherm integration."""
 
-DOMAIN = "ha_heliotherm2"
+DOMAIN = "ha_heliotherm_2"
 DEFAULT_PORT = 502
 DEFAULT_ACCESS_MODE = "read_only"
 
