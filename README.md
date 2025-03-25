@@ -1,8 +1,6 @@
 # HaHeliotherm_2 - Component
 
-Lot of ideas and material from
-
-<https://github.com/mbuchber/ha_heliotherm>
+<img src="images/README/image-20250325180610436.png" alt="image-20250325180610436" style="zoom:33%;" />
 
 --
 
@@ -70,3 +68,7 @@ In the file you can set:
 
 If you have setup HA device already the data should be getting in at this point
 Disclaimer: Use at own risk. As super user you can do quite some settings that should not be done if you do not know what you are doing. In other words: Don't change any settings unless you have been instructed to by a HT expert as super user.
+
+
+
+Tribute to Michael Buchberger: Lot of ideas and material from <https://github.com/mbuchber/ha_heliotherm>

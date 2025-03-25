@@ -1,10 +1,6 @@
-from homeassistant.const import CONF_NAME, UnitOfTemperature, UnitOfPressure, UnitOfEnergy, UnitOfTime, UnitOfPower, UnitOfVolumeFlowRate
-from homeassistant.core import callback
-from homeassistant.components.sensor import SensorEntity, SensorDeviceClass, SensorStateClass
-from homeassistant.components.binary_sensor import BinarySensorEntity
+from homeassistant.const import CONF_NAME
 from homeassistant.components.input_number import *
 
-from homeassistant.components.select import SelectEntity
 import logging
 from typing import Optional, Dict, Any
 

@@ -1,20 +1,8 @@
-from homeassistant.const import CONF_NAME, UnitOfTemperature, UnitOfPressure, UnitOfEnergy, UnitOfTime, UnitOfPower, UnitOfVolumeFlowRate
-from homeassistant.core import callback
-from homeassistant.components.sensor import SensorEntity, SensorDeviceClass, SensorStateClass
-from homeassistant.components.binary_sensor import BinarySensorEntity
+from homeassistant.const import CONF_NAME
 from homeassistant.components.input_number import *
-
-from homeassistant.components.select import SelectEntity
 import logging
-from typing import Optional, Dict, Any
-
-import homeassistant.util.dt as dt_util
-
 from .const import DOMAIN
-from .ha_heliotherm_modbus_sensor import HaHeliothermModbusSensor
-from .ha_heliotherm_modbus_binary_sensor import HaHeliothermModbusBinarySensor
-from .ha_heliotherm_select import HeliothermSelect
-from .ha_heliotherm_modbus_climate import HaHeliothermModbusClimate  # Add this import
+from .ha_heliotherm_modbus_climate import HaHeliothermModbusClimate
 
 _LOGGER = logging.getLogger(__name__)
 
