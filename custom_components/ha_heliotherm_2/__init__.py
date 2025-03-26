@@ -87,9 +87,8 @@ async def async_setup(hass, config):
     hass.data[DOMAIN]["wp_combined_sensors"] = wp_json_config_data["combined_sensors"]
     if wp_json_config_data["config"]["logging"]["level"] == "DEBUG":
       _LOGGER.setLevel(logging.DEBUG)
-    config_wp_registers = hass.data[DOMAIN]["wp_registers"]
-    wp_config = hass.data[DOMAIN]["wp_config"]
-    
+    else:
+      _LOGGER.setLevel(logging.INFO)
     
     async def set_room_temperature_service(call):
         """Handle setting the room temperature using the heat pump."""
@@ -256,10 +255,10 @@ class HaHeliothermModbusHub:
             return False
         try:
             self._client.write_register(address=address, value=value, slave=slave)
-            _LOGGER.debug(f"{function_name}:Successfully wrote value {value} to address {address} on slave {slave}")
+            #_LOGGER.debug(f"{function_name}:Successfully wrote value {value} to address {address} on slave {slave}")
             return True
         except Exception as e:
-            _LOGGER.debug(f"{function_name}:Failed to write register: {e}")
+            #_LOGGER.debug(f"{function_name}:Failed to write register: {e}")
             return False
             
     def read_modbus_registers(self):
@@ -385,13 +384,13 @@ class HaHeliothermModbusHub:
       return options_hashmap.get(operating_mode_nr, "Not found")  # Use int key lookup
 
     def get_operating_mode_number(self, operating_mode_name: str, options: dict):
-      _LOGGER.debug(f"Received options in get_operating_mode_number: {options} (type: {type(options).__name__})")
+      #_LOGGER.debug(f"Received options in get_operating_mode_number: {options} (type: {type(options).__name__})")
       options_reversed = {v: k for k, v in options.items()}
-      _LOGGER.debug(f"Options: {options_reversed}")
+      #_LOGGER.debug(f"Options: {options_reversed}")
       return options_reversed.get(operating_mode_name)  # Lookup by string key
 
     async def setter_function_callback(self, entity: Entity, option, custom_data):
-        _LOGGER.debug(f"Setter function callback for {entity.entity_description.key} with option {option}")
+        #_LOGGER.debug(f"Setter function callback for {entity.entity_description.key} with option {option}")
         register_key = custom_data.get("register_key")
         if entity.entity_description.key == "operating_mode":
             _LOGGER.debug(f"Setting operating mode to {option}")
@@ -415,40 +414,26 @@ class HaHeliothermModbusHub:
             temp = float(option["temperature"])
             await self.set_temperature(temp, register_key)
 
-        if entity.entity_description.key == "ww_normaltemp_loeschen":
-            temp = float(option["temperature"])
-            await self.set_temperature(temp, register_key)
-            
-        if entity.entity_description.key == "rlt_min_cooling_not_ready":
-            temp = float(option["temperature"])
-            await self.set_rltkuehlen(temp, register_key)
-
-        if entity.entity_description.key == "makeHotWater_not_ready":
-            tmin = float(option["target_temp_low"])
-            tmax = float(option["target_temp_high"])
-            await self.set_ww_bereitung(tmin, tmax, register_key)
-        _LOGGER.warning(f"Setter function callback not implemented for {entity.entity_description.key}")
-
     async def set_operating_mode(self, operation_mode: str, register_id):
-      _LOGGER.debug(f"Trying to set {operation_mode} for {register_id}")
+      #_LOGGER.debug(f"Trying to set {operation_mode} for {register_id}")
       #register_id = "operating_mode"
       config_data = self._hass.data[DOMAIN]["wp_registers"]
       config = config_data[register_id]
       config_options = config["options"]
       #_LOGGER.debug(f"Options: {type(config_options)}:{config_options}")
-      _LOGGER.debug(f"config['options']: {config['options']} (type: {type(config['options']).__name__})")
-      _LOGGER.debug(f"get_operating_mode_number called with: {operation_mode}, {config['options']} (type: {type(config['options']).__name__})")
+      #_LOGGER.debug(f"config['options']: {config['options']} (type: {type(config['options']).__name__})")
+      #_LOGGER.debug(f"get_operating_mode_number called with: {operation_mode}, {config['options']} (type: {type(config['options']).__name__})")
       operation_mode_nr = int(self.get_operating_mode_number(operating_mode_name=operation_mode,options=config_options))
-      _LOGGER.debug(f"Received options in get_operating_mode_number: {operation_mode_nr} (type: {type(operation_mode_nr).__name__})")
+      #_LOGGER.debug(f"Received options in get_operating_mode_number: {operation_mode_nr} (type: {type(operation_mode_nr).__name__})")
       if not isinstance(operation_mode_nr, int):
-        _LOGGER.error(f"Invalid operating mode '{operation_mode_nr}' for {register_id}")
+        #_LOGGER.error(f"Invalid operating mode '{operation_mode_nr}' for {register_id}")
         return
-      _LOGGER.debug(f"Setting for {register_id} to {operation_mode} with value {operation_mode_nr}")
+      #_LOGGER.debug(f"Setting for {register_id} to {operation_mode} with value {operation_mode_nr}")
       function_name = inspect.currentframe().f_code.co_name
       myAddress = config["register_number"]
       myValue = operation_mode_nr
       mySlave = self._hass.data[DOMAIN]["wp_config"]["slave_id"]
-      _LOGGER.debug(f"Setting for {function_name} to {operation_mode} with value {myValue}")
+      #_LOGGER.debug(f"Setting for {function_name} to {operation_mode} with value {myValue}")
       if self._access_mode == "read_only":
             _LOGGER.warning(f"Write operation attempted in read-only mode for {function_name} to {operation_mode} with value {myValue}.")
             #return
@@ -506,8 +491,8 @@ class HaHeliothermModbusHub:
         myAddress = config_max["register_number"]
         myValue = int(temp_max_int)
         mySlave = self._hass.data[DOMAIN]["wp_config"]["slave_id"]
-        _LOGGER.debug(f"Setting for {myFunctionName} min to {config_data["wwMinimaltemp"]["wwMinimaltemp"]} with value {temp_min_int}")
-        _LOGGER.debug(f"Setting for {myFunctionName} max to {myAddress} with value {myValue}")
+        #_LOGGER.debug(f"Setting for {myFunctionName} min to {config_data["wwMinimaltemp"]["wwMinimaltemp"]} with value {temp_min_int}")
+        #_LOGGER.debug(f"Setting for {myFunctionName} max to {myAddress} with value {myValue}")
         if self._access_mode == "read_only":
             _LOGGER.warning(f"Write operation attempted in read-only mode for {myFunctionName} to{register_id} to myAddress {myAddress} with value {myValue} second register: {config_min["register_number"]} with value {temp_min_int}.")
             return
