@@ -1,0 +1,18 @@
+{  
+  "domain": "ha_heliotherm_2",
+  "name": "HaHeliotherm2",
+  "codeowners": ["@gamgamstylep"],
+  "config_flow": true,
+  "dependencies": ["modbus"],
+  "documentation": "https://github.com/gamgamstylep/ha_heliotherm2/",
+  "homekit": {},
+  "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/gamgamstylep/ha_heliotherm2/issues",
+  "requirements": [
+    "pymodbus==3.8.6"
+  ],
+  "logo": "logo.png",
+  "ssdp": [],
+  "version": "1.0.41",
+  "zeroconf": []  
+}

@@ -73,18 +73,20 @@ async def async_setup(hass, config):
     access_mode = hass.data[DOMAIN]["wp_config_access_mode"] if "wp_config_access_mode" in hass.data[DOMAIN] else "read_only"
 
     # Store the configuration data in hass.data for other components or entities to access
-    filtered_registers = {k: v for k, v in wp_json_config_data["registers"].items() if not v.get("omit", False)}
-    sensor_registers = {k: v for k, v in filtered_registers.items() if v["type"] == "sensor"}
-    binary_sensor_registers = {k: v for k, v in filtered_registers.items() if v["type"] == "binary"}  
-    climate_registers = {k: v for k, v in filtered_registers.items() if v["type"] == "climate"}
-    select_registers = {k: v for k, v in filtered_registers.items() if v["type"] == "select"}
-    hass.data[DOMAIN]["wp_registers_sensor"] = sensor_registers
-    hass.data[DOMAIN]["wp_registers_binary_sensor"] = binary_sensor_registers
-    hass.data[DOMAIN]["wp_registers_climate"] = climate_registers
-    hass.data[DOMAIN]["wp_registers_select"] = select_registers
-    hass.data[DOMAIN]["wp_registers"] = filtered_registers
+    filtered_entities = {k: v for k, v in wp_json_config_data["entities"].items() if not v.get("omit", False)}
+    additional_entities = {k: v for k, v in wp_json_config_data["additional_entities"].items() if not v.get("omit", False)}
+    additional_sensor_entities = {k: v for k, v in additional_entities.items() if v["type"] == "sensor"}
+    sensor_entities = {k: v for k, v in filtered_entities.items() if v["type"] == "sensor"}
+    binary_sensor_entities = {k: v for k, v in filtered_entities.items() if v["type"] == "binary"}  
+    climate_entities = {k: v for k, v in filtered_entities.items() if v["type"] == "climate"}
+    select_entities = {k: v for k, v in filtered_entities.items() if v["type"] == "select"}
+    hass.data[DOMAIN]["entities_sensor"] = sensor_entities
+    hass.data[DOMAIN]["entities_binary_sensor"] = binary_sensor_entities
+    hass.data[DOMAIN]["entities_climate"] = climate_entities
+    hass.data[DOMAIN]["entities_select"] = select_entities
+    hass.data[DOMAIN]["entities"] = filtered_entities
     hass.data[DOMAIN]["wp_config"] = wp_json_config_data["config"]
-    hass.data[DOMAIN]["wp_combined_sensors"] = wp_json_config_data["combined_sensors"]
+    hass.data[DOMAIN]["combined_entities"] = wp_json_config_data.get("combined_entities", {})
     if wp_json_config_data["config"]["logging"]["level"] == "DEBUG":
       _LOGGER.setLevel(logging.DEBUG)
     else:
@@ -240,7 +242,7 @@ class HaHeliothermModbusHub:
             self._client.connect()
             
     async def write_register_with_protection(self, address, value, slave, register_id):
-        config = self._hass.data[DOMAIN]["wp_registers"][register_id]
+        config = self._hass.data[DOMAIN]["entities"][register_id]
         write_protected = True
         function_name = inspect.currentframe().f_code.co_name
         if "write_protected" in config:
@@ -304,12 +306,12 @@ class HaHeliothermModbusHub:
             # Process data from registers
             added_entities = self._hass.data[DOMAIN][self._name]["added_entities"]
             #_LOGGER.debug(f"Added entities: {added_entities}")
-            for wp_register_key, wp_register_object in self._hass.data[DOMAIN]["wp_registers"].items():
-                register_number = int(wp_register_object["register_number"])
+            for entity_key, wp_entity_object in self._hass.data[DOMAIN]["entities"].items():
+                register_number = int(wp_entity_object["register_number"])
                 #_LOGGER.debug(f"Register number: {register_number}")
-                if wp_register_key not in added_entities:
+                if entity_key not in added_entities:
                   continue
-                step = float(wp_register_object["step"])
+                step = float(wp_entity_object["step"])
                 # Ensure register number exists in modbusdata_values
                 register_value = None
                 if register_number in modbusdata_input_registers_values:
@@ -317,25 +319,25 @@ class HaHeliothermModbusHub:
                 elif register_number in modbusdata_holding_registers_values:
                     register_value = modbusdata_holding_registers_values[register_number]
                 #if register_number > wp_config["holding_registers_begin"]:
-                #_LOGGER.debug(f"Key {wp_register_key} Register {register_number} Registerwert: {register_value}")
-                multiplier = wp_register_object.get("multiplier", 1)
+                #_LOGGER.debug(f"Key {entity_key} Register {register_number} Registerwert: {register_value}")
+                multiplier = wp_entity_object.get("multiplier", 1)
                 if register_value is not None:
-                    if wp_register_object["type"] == "boolean":
-                        self.data[wp_register_key] = self.get_boolean_state(register_value, wp_register_key)
-                    elif wp_register_object["type"] == "select":
-                        my_options = wp_register_object["options"]
-                        self.data[wp_register_key] = self.get_operating_mode_string(register_value,my_options)
-                    elif wp_register_object["type"] == "climate":
-                        _LOGGER.debug(f"Climate register: {wp_register_key} with value {register_value}")
-                        self.data[wp_register_key] = self.checkval(register_value, multiplier)
-                    elif wp_register_object["data_type"] == "INT16":
-                        self.data[wp_register_key] = self.checkval(register_value, multiplier)
-                    elif wp_register_object["type"] == "energy":
-                        self.data[wp_register_key] = self.decode_energy_data(register_value, wp_register_key)
+                    if wp_entity_object["type"] == "boolean":
+                        self.data[entity_key] = self.get_boolean_state(register_value, entity_key)
+                    elif wp_entity_object["type"] == "select":
+                        my_options = wp_entity_object["options"]
+                        self.data[entity_key] = self.get_operating_mode_string(register_value,my_options)
+                    elif wp_entity_object["type"] == "climate":
+                        _LOGGER.debug(f"Climate register: {entity_key} with value {register_value}")
+                        self.data[entity_key] = self.checkval(register_value, multiplier)
+                    elif wp_entity_object["data_type"] == "INT16":
+                        self.data[entity_key] = self.checkval(register_value, multiplier)
+                    elif wp_entity_object["type"] == "energy":
+                        self.data[entity_key] = self.decode_energy_data(register_value, entity_key)
                     else: 
-                        self.data[wp_register_key] = self.checkval(register_value, multiplier)
+                        self.data[entity_key] = self.checkval(register_value, multiplier)
                 else:
-                    _LOGGER.error(f"Register {register_number} not found for {wp_register_key}")
+                    _LOGGER.error(f"Register {register_number} not found for {entity_key}")
 
             return True
 
@@ -391,33 +393,33 @@ class HaHeliothermModbusHub:
 
     async def setter_function_callback(self, entity: Entity, option, custom_data):
         #_LOGGER.debug(f"Setter function callback for {entity.entity_description.key} with option {option}")
-        register_key = custom_data.get("register_key")
+        entity_key = custom_data.get("entity_key")
         if entity.entity_description.key == "operating_mode":
             _LOGGER.debug(f"Setting operating mode to {option}")
-            await self.set_operating_mode(option, register_key)
+            await self.set_operating_mode(option, entity_key)
             return
         if entity.entity_description.key == "mkr1_operating_mode":
-            await self.set_operating_mode(option, register_key)
+            await self.set_operating_mode(option, entity_key)
             return
         if entity.entity_description.key == "mkr2_operating_mode":
-            await self.set_operating_mode(option, register_key)
+            await self.set_operating_mode(option, entity_key)
             return
         if entity.entity_description.key == "desired_room_temperature":
             temp = float(option["temperature"])
-            await self.set_temperature(temp, register_key)
+            await self.set_temperature(temp, entity_key)
             
         if entity.entity_description.key == "ww_normaltemp":
             temp = float(option["temperature"])
-            await self.set_temperature(temp, register_key)
+            await self.set_temperature(temp, entity_key)
             
         if entity.entity_description.key == "ww_minimaltemp":
             temp = float(option["temperature"])
-            await self.set_temperature(temp, register_key)
+            await self.set_temperature(temp, entity_key)
 
     async def set_operating_mode(self, operation_mode: str, register_id):
       #_LOGGER.debug(f"Trying to set {operation_mode} for {register_id}")
       #register_id = "operating_mode"
-      config_data = self._hass.data[DOMAIN]["wp_registers"]
+      config_data = self._hass.data[DOMAIN]["entities"]
       config = config_data[register_id]
       config_options = config["options"]
       #_LOGGER.debug(f"Options: {type(config_options)}:{config_options}")
@@ -448,7 +450,7 @@ class HaHeliothermModbusHub:
             return
         _LOGGER.debug(f"Trying to set {temperature} for {register_id}")
         
-        config_data = self._hass.data[DOMAIN]["wp_registers"]
+        config_data = self._hass.data[DOMAIN]["entities"]
         config = config_data[register_id]
         myAddress = config["register_number"]
         myValue = int(temperature / config.get("multiplier", 1))
@@ -464,7 +466,7 @@ class HaHeliothermModbusHub:
         if temperature is None:
             return
         temp_int = int(temperature * 10)
-        config_data = self._hass.data[DOMAIN]["wp_registers"]
+        config_data = self._hass.data[DOMAIN]["entities"]
         config = config_data["rltMinKuelung"]
         myFunctionName = inspect.currentframe().f_code.co_name
         myAddress = config["register_number"]
@@ -484,7 +486,7 @@ class HaHeliothermModbusHub:
             return
         temp_max_int = int(temp_max * 10)
         temp_min_int = int(temp_min * 10)
-        config_data = self._hass.data[DOMAIN]["wp_registers"]
+        config_data = self._hass.data[DOMAIN]["entities"]
         config_max = config_data["wwNormaltemp"] # 105
         config_min = config_data["wwMinimaltemp"] # 106
         myFunctionName = inspect.currentframe().f_code.co_name

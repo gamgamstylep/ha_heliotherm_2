@@ -11,22 +11,22 @@ _LOGGER = logging.getLogger(__name__)
 class HaHeliothermModbusClimate(HaHeliothermBaseEntity, ClimateEntity):
     """Representation of a Heliotherm Modbus climate entity."""
 
-    def __init__(self, platform_name, hub, device_info, register, register_key, display_language):
-        super().__init__(platform_name, hub, device_info, register, register_key, display_language=display_language)
+    def __init__(self, platform_name, hub, device_info, entity, entity_key, display_language,entity_specific_dict=None):
+        super().__init__(platform_name, hub, device_info, entity, entity_key, display_language)
         self._hub = hub
-        self._register = register
-        self._register_key = register_key
+        self._entity = entity
+        self._entity_key = entity_key
         self._display_language = display_language
-        self._attr_temperature_unit = register['unit']
-        self._attr_target_temperature_low = register['min']
-        self._attr_target_temperature_high = register['max']
-        self._attr_target_temperature_step = register['step']
+        self._attr_temperature_unit = entity['unit']
+        self._attr_target_temperature_low = entity['min']
+        self._attr_target_temperature_high = entity['max']
+        self._attr_target_temperature_step = entity['step']
         self._attr_hvac_mode = HVACMode.AUTO  
         self._attr_current_temperature = None
         self._attr_target_temperature = None
         
         self.entity_description = ClimateEntityDescription(
-            key=register_key,
+            key=entity_key,
             name=self.name
         )
     
@@ -63,12 +63,12 @@ class HaHeliothermModbusClimate(HaHeliothermBaseEntity, ClimateEntity):
     @property
     def min_temp(self):
         """Return the minimum temperature."""
-        return self._register['min']
+        return self._entity['min']
 
     @property
     def max_temp(self):
         """Return the maximum temperature."""
-        return self._register['max']
+        return self._entity['max']
 
     @property
     def extra_state_attributes(self):
@@ -92,33 +92,33 @@ class HaHeliothermModbusClimate(HaHeliothermBaseEntity, ClimateEntity):
         self.async_write_ha_state()
         
         custom_data = {
-            "register_key": self._register_key,
+            "entity_key": self._entity_key,
             "device_id": self.device_info.get("identifiers"),
         }
         self.hass.add_job(self._hub.setter_function_callback(self, kwargs, custom_data))
 
     async def async_update(self):
         """Update the entity state by reading values from the device."""
-        new_temperature = self._hub.data.get(self._register_key)
+        new_temperature = self._hub.data.get(self._entity_key)
         
         if new_temperature is not None:
             self._attr_current_temperature = new_temperature
             self.async_write_ha_state()
         else:
-            _LOGGER.debug(f"No data found for key {self._register_key} in hub {self._hub.name}")
+            _LOGGER.debug(f"No data found for key {self._entity_key} in hub {self._hub.name}")
             
     @callback
     def _modbus_data_updated(self):
         """Handle updated data from Modbus."""
-        if self._register_key in self._hub.data:
-            self._attr_current_temperature = self._hub.data[self._register_key]
+        if self._entity_key in self._hub.data:
+            self._attr_current_temperature = self._hub.data[self._entity_key]
             self._attr_target_temperature = self._attr_current_temperature
         self.async_write_ha_state()
             
     @property
     def native_value(self):
         """Return the state of the sensor."""
-        value = self._hub.data.get(self._register_key)
-        if value is not None and self._register.get("unit") == "‰":
+        value = self._hub.data.get(self._entity_key)
+        if value is not None and self._entity.get("unit") == "‰":
             return value / 10  # Convert promille to percent
         return value

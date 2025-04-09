@@ -18,24 +18,22 @@ class HaHeliothermModbusSensor(HaHeliothermBaseEntity, SensorEntity):
         platform_name,
         hub,
         device_info,
-        register,
-        register_key,
+        entity,
+        entity_key,
         display_language,
-        native_unit_of_measurement,
-        device_class,
-        state_class,
+        entity_specific_dict=None
     ):
         """Initialize the sensor."""
-        super().__init__(platform_name, hub, device_info, register, register_key,display_language=display_language)
-        self._attr_native_unit_of_measurement = native_unit_of_measurement
-        self._attr_device_class = device_class
-        self._attr_state_class = state_class
+        super().__init__(platform_name, hub, device_info, entity, entity_key,display_language=display_language)
+        self._attr_native_unit_of_measurement = entity_specific_dict.get("native_unit_of_measurement","")
+        self._attr_device_class = entity_specific_dict.get("device_class","")
+        self._attr_state_class = entity_specific_dict.get("state_class","")
         self.entity_description = SensorEntityDescription(
-            key=register_key,
+            key=entity_key,
             name=self.name,  # Corrected line
-            device_class=device_class,
-            native_unit_of_measurement=native_unit_of_measurement,
-            state_class=state_class,
+            device_class=self._attr_device_class,
+            native_unit_of_measurement=self._attr_native_unit_of_measurement,
+            state_class=self._attr_state_class,
         )
     
 
@@ -48,18 +46,18 @@ class HaHeliothermModbusSensor(HaHeliothermBaseEntity, SensorEntity):
 
     @callback
     def _modbus_data_updated(self):
-        if self._register_key in self._hub.data:
-            self._attr_native_value = self._hub.data[self._register_key]
+        if self._entity_key in self._hub.data:
+            self._attr_native_value = self._hub.data[self._entity_key]
         self.async_write_ha_state()
 
 
     @property
     def native_value(self):
         """Return the state of the sensor."""
-        value = self._hub.data.get(self._register_key)
+        value = self._hub.data.get(self._entity_key)
 
         # Prüfen, ob die Einheit Promille (‰) ist und dann umrechnen
-        if value is not None and self._register.get("unit") == "‰":
+        if value is not None and self._entity.get("unit") == "‰":
             return value / 10  # Umwandlung von Promille in Prozent
 
         return value
