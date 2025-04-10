@@ -152,7 +152,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     hub = HaHeliothermModbusHub(hass, name, host, port, scan_interval, access_mode, display_language)
     # """Register the hub."""
     hass.data[DOMAIN][name] = {"hub": hub}
-
+    hass.data[DOMAIN][name]["added_entities"] = set()
     await hass.config_entries.async_forward_entry_setups(entry, ["sensor", "binary_sensor", "climate", "select"])
     return True
 
@@ -305,7 +305,7 @@ class HaHeliothermModbusHub:
         try:
             # Process data from registers
             added_entities = self._hass.data[DOMAIN][self._name]["added_entities"]
-            #_LOGGER.debug(f"Added entities: {added_entities}")
+            _LOGGER.debug(f"Added entities: {added_entities}")
             for entity_key, wp_entity_object in self._hass.data[DOMAIN]["entities"].items():
                 register_number = int(wp_entity_object["register_number"])
                 #_LOGGER.debug(f"Register number: {register_number}")

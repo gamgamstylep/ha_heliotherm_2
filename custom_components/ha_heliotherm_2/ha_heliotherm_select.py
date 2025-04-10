@@ -1,7 +1,8 @@
 from homeassistant.components.select import SelectEntity, SelectEntityDescription
 from homeassistant.core import callback
 from .ha_heliotherm_base_entity import HaHeliothermBaseEntity
-
+import logging
+_LOGGER = logging.getLogger(__name__)
 class HeliothermSelect(HaHeliothermBaseEntity, SelectEntity):
     """Representation of a weenect select."""
 

@@ -21,7 +21,7 @@ async def async_setup_shared(
     entity_specific_dict = {}
     #entity_specific_dict["display_language"] = display_language
     entities_to_add = []
-    added_entities = hass.data[DOMAIN][hub_name].get("added_entities", set())
+    added_entities = set()
     #_LOGGER.debug(f"entities: {entities}")  
     for entity_key, my_entity in entities.items():
         if my_entity.get("omit", False):
@@ -30,7 +30,8 @@ async def async_setup_shared(
             break  # Skip if register number is too high
         if entity_key in added_entities:
             continue  # Skip if already added
-
+        # ❗ Neu initialisieren innerhalb der Schleife
+        entity_specific_dict = {}
         # Handle unit mapping if provided
         native_unit_of_measurement = None
         device_class = None
@@ -45,7 +46,7 @@ async def async_setup_shared(
             entity_specific_dict["native_unit_of_measurement"] = native_unit_of_measurement
             entity_specific_dict["device_class"] = device_class
             entity_specific_dict["state_class"] = state_class 
-        _LOGGER.debug(f"Entityclass: {entity_class}")
+        #_LOGGER.debug(f"Entityclass: {entity_class}")
         # Create the entity
         entity = entity_class(
             hub_name,
@@ -57,12 +58,15 @@ async def async_setup_shared(
             entity_specific_dict=entity_specific_dict,
         )
         entity._attr_name = entity.name  # Ensure name is set
+        _LOGGER.debug(f"Entity: {entity}")
         entities_to_add.append(entity)
         added_entities.add(entity_key)  # Mark as added
 
     #_LOGGER.debug(f"Entities to add: {[f'{e.__class__.__name__} ({e.entity_id})' for e in entities]}")
 
-    if "added_entities" in hass.data[DOMAIN][hub_name]:
-        added_entities.update(hass.data[DOMAIN][hub_name]["added_entities"])
+    
+    hass.data[DOMAIN][hub_name]["added_entities"].update(added_entities)
+    _LOGGER.debug(f"Added entities: {added_entities}")
+    # Update the hub's added entities
     #hass.data[DOMAIN][hub_name]["added_entities"] = added_entities
     async_add_entities(entities_to_add)
