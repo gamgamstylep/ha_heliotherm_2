@@ -1,7 +1,8 @@
 from homeassistant.components.select import SelectEntity, SelectEntityDescription
 from homeassistant.core import callback
 from .ha_heliotherm_base_entity import HaHeliothermBaseEntity
-
+import logging
+_LOGGER = logging.getLogger(__name__)
 class HeliothermSelect(HaHeliothermBaseEntity, SelectEntity):
     """Representation of a weenect select."""
 
@@ -10,31 +11,29 @@ class HeliothermSelect(HaHeliothermBaseEntity, SelectEntity):
         platform_name,
         hub,
         device_info,
-        register,
-        register_key,
-        options: list[str],
-        default_value: str,
+        entity,
+        entity_key,
         display_language,  # Add this line
+        entity_specific_dict=None
     ):
         """Initialize the select entity."""
-        super().__init__(platform_name, hub, device_info, register, register_key, display_language)  # Update this line
-        self._attr_options = options
-        self._attr_current_option = default_value
+        super().__init__(platform_name, hub, device_info, entity, entity_key, display_language)  # Update this line
+        self._attr_options = list(entity["options"].values()) if "options" in entity else None
+        self._attr_current_option = entity.get("default_option")
         self.entity_description = SelectEntityDescription(
-            key=register_key,
+            key=entity_key,
             name=self.name, 
-            options=options,
+            options=self._attr_options,
         )
-
     @property
     def current_option(self) -> str | None:
         """Return the selected entity option to represent the entity state."""
         return self._attr_current_option
 
-    # async def async_select_option(self, option: str, register_key=None) -> None:
+    # async def async_select_option(self, option: str, entity_key=None) -> None:
     #     """Change the selected option."""
     #     self._attr_current_option = option
-    #     await self._hub.setter_function_callback(self, option, register_key)
+    #     await self._hub.setter_function_callback(self, option, entity_key)
         
     async def async_select_option(self, option: str) -> None:
         """Change the selected option and send additional data."""
@@ -42,7 +41,7 @@ class HeliothermSelect(HaHeliothermBaseEntity, SelectEntity):
 
         # Define custom data to send when the selection changes
         custom_data = {
-            "register_key": self._register_key,
+            "entity_key": self._entity_key,
             "device_id": self.device_info.get("identifiers"),
         }
 
@@ -58,6 +57,6 @@ class HeliothermSelect(HaHeliothermBaseEntity, SelectEntity):
 
     @callback
     def _modbus_data_updated(self):
-        if self._register_key in self._hub.data:
-            self._attr_current_option = self._hub.data[self._register_key]
+        if self._entity_key in self._hub.data:
+            self._attr_current_option = self._hub.data[self._entity_key]
         self.async_write_ha_state()

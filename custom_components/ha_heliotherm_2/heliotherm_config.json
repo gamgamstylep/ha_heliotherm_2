@@ -29,7 +29,7 @@
     "update_interval": 60,
     "logging": {
       "enabled": true,
-      "level": "INFO"
+      "level": "DEBUG"
     },
     "reading_registers_begin": 10,
     "reading_registers_end": 99,
@@ -53,7 +53,7 @@
       }
     ]
   },
-  "registers": {
+  "entities": {
   "temp_outside": {
     "register_number": 10,
     "type": "sensor",
@@ -1973,7 +1973,17 @@
     "write_register_code": 6
   } 
 },
-  "combined_sensors": {
+  "additional_entities": {
+  "ww_normaltemp_sensor": {
+    "copy_from_register": "ww_normaltemp",
+    "description": {
+      "en": "WW Normaltemp. Sensor",
+      "de": "WW Normaltemp. Sensor"
+    },
+    "type": "sensor"
+    }
+},
+  "combined_entities": {
     "make_hot_water": {
     "attribute_from_register": {
       "min": "ww_minimaltemp",

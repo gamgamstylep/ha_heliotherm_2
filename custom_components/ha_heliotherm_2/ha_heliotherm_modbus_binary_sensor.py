@@ -10,23 +10,24 @@ class HaHeliothermModbusBinarySensor(HaHeliothermBaseEntity, BinarySensorEntity)
         platform_name,
         hub,
         device_info,
-        register,
-        register_key,
+        entity,
+        entity_key,
         display_language,
+        entity_specific_dict=None,
     ):
         """Initialize the binary sensor."""
-        super().__init__(platform_name, hub, device_info, register, register_key,display_language)
+        super().__init__(platform_name, hub, device_info, entity, entity_key,display_language)
 
     @callback
     def _update_state(self):
-        if self._register_key in self._hub.data:
-            self._attr_is_on = self._hub.data[self._register_key] == "on"
+        if self._entity_key in self._hub.data:
+            self._attr_is_on = self._hub.data[self._entity_key] == "on"
 
     @property
     def is_on(self):
         """Return true if the binary sensor is on."""
         return (
-            self._hub.data[self._register_key]
-            if self._register_key in self._hub.data
+            self._hub.data[self._entity_key]
+            if self._entity_key in self._hub.data
             else None
         )
