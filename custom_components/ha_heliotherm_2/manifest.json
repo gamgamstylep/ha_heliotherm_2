@@ -4,14 +4,15 @@
   "codeowners": ["@gamgamstylep"],
   "config_flow": true,
   "dependencies": ["modbus"],
-  "documentation": "https://github.com/gamgamstylep/ha_heliotherm2/",
+  "documentation": "https://github.com/gamgamstylep/ha_heliotherm_2/",
   "homekit": {},
   "iot_class": "local_polling",
-  "issue_tracker": "https://github.com/gamgamstylep/ha_heliotherm2/issues",
+  "issue_tracker": "https://github.com/gamgamstylep/ha_heliotherm_2/issues",
   "requirements": [
     "pymodbus==3.8.6"
   ],
   "logo": "logo.png",
+  "icon": "mdi:robot",
   "ssdp": [],
   "version": "1.0.41",
   "zeroconf": []  
