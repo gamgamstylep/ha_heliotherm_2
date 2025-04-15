@@ -21,9 +21,10 @@ class HaHeliothermModbusClimate(HaHeliothermBaseEntity, ClimateEntity):
         self._attr_target_temperature_low = entity['min']
         self._attr_target_temperature_high = entity['max']
         self._attr_target_temperature_step = entity['step']
-        self._attr_hvac_mode = HVACMode.AUTO  
+        self._attr_hvac_mode = HVACMode.AUTO
         self._attr_current_temperature = None
         self._attr_target_temperature = None
+        self._attr_entity_specific_dict = entity_specific_dict or {}
         
         self.entity_description = ClimateEntityDescription(
             key=entity_key,
@@ -58,6 +59,8 @@ class HaHeliothermModbusClimate(HaHeliothermBaseEntity, ClimateEntity):
     @property
     def supported_features(self):
         """Return the list of supported features."""
+        if self._entity.get("combined_entity", False):
+            return ClimateEntityFeature.TARGET_TEMPERATURE_RANGE
         return ClimateEntityFeature.TARGET_TEMPERATURE
 
     @property
@@ -84,10 +87,10 @@ class HaHeliothermModbusClimate(HaHeliothermBaseEntity, ClimateEntity):
         if ATTR_TEMPERATURE in kwargs:
             self._attr_target_temperature = float(kwargs[ATTR_TEMPERATURE])
             self._attr_current_temperature = float(kwargs[ATTR_TEMPERATURE])
-        if "target_temp_low" in kwargs:
-            self._attr_target_temperature_low = float(kwargs["target_temp_low"])
-        if "target_temp_high" in kwargs:
-            self._attr_target_temperature_high = float(kwargs["target_temp_high"])
+        if "target_temperature_low" in kwargs:
+            self._attr_target_temperature_low = float(kwargs["target_temperature_low"])
+        if "target_temperature_high" in kwargs:
+            self._attr_target_temperature_high = float(kwargs["target_temperature_high"])
         
         self.async_write_ha_state()
         
@@ -110,10 +113,35 @@ class HaHeliothermModbusClimate(HaHeliothermBaseEntity, ClimateEntity):
     @callback
     def _modbus_data_updated(self):
         """Handle updated data from Modbus."""
+        _LOGGER.debug(f"Modbus data updated for (hubdata) {self._entity_key}: {self._hub.data}")
+        # Check if the entity key is in the hub data
         if self._entity_key in self._hub.data:
             self._attr_current_temperature = self._hub.data[self._entity_key]
             self._attr_target_temperature = self._attr_current_temperature
+        _LOGGER.debug(f"self._entity_key: (self._entity) {self._entity_key}: {self._entity}")
+        # Check if the target temperature low and high keys are in the hub data
+        if self._entity.get("combined_entity", False):
+          target_temperature_low_entity_key = self._entity.get("attributes_from_register").get("target_temperature_low")
+          _LOGGER.debug(f"target_temperature_low_entity_key: {target_temperature_low_entity_key}")  
+          if target_temperature_low_entity_key in self._hub.data:
+              self._attr_target_temperature_low = self._hub.data["ww_minimaltemp"]
+          target_temperature_high_entity_key = self._entity.get("attributes_from_register").get("target_temperature_high")
+          _LOGGER.debug(f"target_temperature_high_entity_key: {target_temperature_high_entity_key}")
+          if target_temperature_high_entity_key in self._hub.data:
+              self._attr_target_temperature_high = self._hub.data["ww_normaltemp"]
         self.async_write_ha_state()
+    # @callback
+    # def _modbus_data_updated(self):
+    #     if self.entity_description.key in self._hub.data:
+    #         args = self._hub.data[self.entity_description.key]
+    #         if "temperature" in args:
+    #             self._attr_current_temperature = float(args["temperature"])
+    #             self._attr_target_temperature = float(args["temperature"])
+    #         if "target_temperature_low" in args:
+    #             self._attr_target_temperature_low = float(args["target_temperature_low"])
+    #         if "target_temperature_high" in args:
+    #             self._attr_target_temperature_high = float(args["target_temperature_high"])
+    #     self.async_write_ha_state()
             
     @property
     def native_value(self):

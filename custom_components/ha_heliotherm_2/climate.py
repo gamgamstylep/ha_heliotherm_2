@@ -1,3 +1,4 @@
+# https://developers.home-assistant.io/docs/core/entity/climate/
 from homeassistant.const import CONF_NAME
 from homeassistant.components.input_number import *
 import logging
@@ -13,5 +14,12 @@ async def async_setup_entry(hass, entry, async_add_entities):
         entry,
         async_add_entities,
         entity_type_key="entities_climate",
+        entity_class=HaHeliothermModbusClimate,
+    )
+    await async_setup_shared(
+        hass,
+        entry,
+        async_add_entities,
+        entity_type_key="entities_climate_combined",
         entity_class=HaHeliothermModbusClimate,
     )

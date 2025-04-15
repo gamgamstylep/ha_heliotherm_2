@@ -75,14 +75,17 @@ async def async_setup(hass, config):
     # Store the configuration data in hass.data for other components or entities to access
     filtered_entities = {k: v for k, v in wp_json_config_data["entities"].items() if not v.get("omit", False)}
     additional_entities = {k: v for k, v in wp_json_config_data["additional_entities"].items() if not v.get("omit", False)}
+    entities_combined = {k: v for k, v in wp_json_config_data["combined_entities"].items() if not v.get("omit", False)}
     additional_sensor_entities = {k: v for k, v in additional_entities.items() if v["type"] == "sensor"}
     sensor_entities = {k: v for k, v in filtered_entities.items() if v["type"] == "sensor"}
     binary_sensor_entities = {k: v for k, v in filtered_entities.items() if v["type"] == "binary"}  
-    climate_entities = {k: v for k, v in filtered_entities.items() if v["type"] == "climate"}
+    entities_climate = {k: v for k, v in filtered_entities.items() if v["type"] == "climate"}
     select_entities = {k: v for k, v in filtered_entities.items() if v["type"] == "select"}
+    entities_climate_combined = {k: v for k, v in entities_combined.items() if v["type"] == "climate"}
     hass.data[DOMAIN]["entities_sensor"] = sensor_entities
     hass.data[DOMAIN]["entities_binary_sensor"] = binary_sensor_entities
-    hass.data[DOMAIN]["entities_climate"] = climate_entities
+    hass.data[DOMAIN]["entities_climate"] = entities_climate
+    hass.data[DOMAIN]["entities_climate_combined"] = entities_climate_combined
     hass.data[DOMAIN]["entities_select"] = select_entities
     hass.data[DOMAIN]["entities"] = filtered_entities
     hass.data[DOMAIN]["wp_config"] = wp_json_config_data["config"]
@@ -241,19 +244,19 @@ class HaHeliothermModbusHub:
         with self._lock:
             self._client.connect()
             
-    async def write_register_with_protection(self, address, value, slave, register_id):
-        config = self._hass.data[DOMAIN]["entities"][register_id]
+    async def write_register_with_protection(self, address, value, slave, entity_id):
+        config = self._hass.data[DOMAIN]["entities"][entity_id]
         write_protected = True
         function_name = inspect.currentframe().f_code.co_name
         if "write_protected" in config:
           write_protected = config["write_protected"]
-          _LOGGER.debug(f"{function_name}:Write protect: {write_protected} for {register_id} with address {address} and value {value}")
+          _LOGGER.debug(f"{function_name}:Write protect: {write_protected} for {entity_id} with address {address} and value {value}")
         if write_protected:
-          _LOGGER.debug(f"{function_name}:Write protection is enabled. Cannot perform write operation for {register_id} with address {address} and value {value}")
+          _LOGGER.debug(f"{function_name}:Write protection is enabled. Cannot perform write operation for {entity_id} with address {address} and value {value}")
           return False
         # If no protection, proceed with the write operation
         if type(value) != int:
-            _LOGGER.error(f"{function_name}:Invalid value {value} (datentyp:{type(value)}) (type: {value.__name__}) for {register_id} with address {address}")
+            _LOGGER.error(f"{function_name}:Invalid value {value} (datentyp:{type(value)}) (type: {value.__name__}) for {entity_id} with address {address}")
             return False
         try:
             self._client.write_register(address=address, value=value, slave=slave)
@@ -391,30 +394,45 @@ class HaHeliothermModbusHub:
       #_LOGGER.debug(f"Options: {options_reversed}")
       return options_reversed.get(operating_mode_name)  # Lookup by string key
 
-    async def setter_function_callback(self, entity: Entity, option, custom_data):
+    async def setter_function_callback(self, entityObject: Entity, option, custom_data):
         #_LOGGER.debug(f"Setter function callback for {entity.entity_description.key} with option {option}")
         entity_key = custom_data.get("entity_key")
-        if entity.entity_description.key == "operating_mode":
+        if entityObject.entity_description.key == "operating_mode":
             _LOGGER.debug(f"Setting operating mode to {option}")
             await self.set_operating_mode(option, entity_key)
             return
-        if entity.entity_description.key == "mkr1_operating_mode":
+        if entityObject.entity_description.key == "mkr1_operating_mode":
             await self.set_operating_mode(option, entity_key)
             return
-        if entity.entity_description.key == "mkr2_operating_mode":
+        if entityObject.entity_description.key == "mkr2_operating_mode":
             await self.set_operating_mode(option, entity_key)
             return
-        if entity.entity_description.key == "desired_room_temperature":
-            temp = float(option["temperature"])
-            await self.set_temperature(temp, entity_key)
+        if entityObject.entity_description.key == "desired_room_temperature":
+            temperature = float(option["temperature"])
+            await self.set_temperature(temperature, entity_key)
             
-        if entity.entity_description.key == "ww_normaltemp":
-            temp = float(option["temperature"])
-            await self.set_temperature(temp, entity_key)
+        if entityObject.entity_description.key == "ww_normaltemp":
+            temperature = float(option["temperature"])
+            await self.set_temperature(temperature, entity_key)
+        
+        if entityObject.entity_description.key == "ww_minimaltemp":
+            temperature = float(option["temperature"])
+            await self.set_temperature(temperature, entity_key)
+        
+        if entityObject.entity_description.key == "rlt_min_cooling":
+            temperature = float(option["temperature"])
+            await self.set_rltkuehlen(temperature, entity_key) 
+        
             
-        if entity.entity_description.key == "ww_minimaltemp":
-            temp = float(option["temperature"])
-            await self.set_temperature(temp, entity_key)
+        if entityObject.entity_description.key == "hotwater_min_max":
+            target_temperature_low_entity_key = entityObject._entity.get("attributes_from_register").get("target_temperature_low")
+            _LOGGER.debug(f"target_temperature_low_entity_key: {target_temperature_low_entity_key}")
+            target_temperature_high_entity_key = entityObject._entity.get("attributes_from_register").get("target_temperature_high")
+            _LOGGER.debug(f"target_temperature_high_entity_key: {target_temperature_high_entity_key}")
+            temperature = float(option["target_temperature_low"])
+            #await self.set_temperature(temperature, target_temperature_low_entity_key)
+            temperature = float(option["target_temperature_high"])
+            #await self.set_temperature(temperature, target_temperature_high_entity_key)
 
     async def set_operating_mode(self, operation_mode: str, register_id):
       #_LOGGER.debug(f"Trying to set {operation_mode} for {register_id}")
@@ -439,29 +457,29 @@ class HaHeliothermModbusHub:
       if self._access_mode == "read_only":
             _LOGGER.warning(f"Write operation attempted in read-only mode for {function_name} to {operation_mode} with value {myValue}.")
             #return
-      await self.write_register_with_protection(address=myAddress, value=myValue, slave=mySlave, register_id=register_id)
+      await self.write_register_with_protection(address=myAddress, value=myValue, slave=mySlave, entity_id=register_id)
       await self.async_refresh_modbus_data()
 
-    async def set_temperature(self, temperature: float, register_id):
+    async def set_temperature(self, temperature: float, entity_id):
         # 101
         my_function_name = inspect.currentframe().f_code.co_name
         if temperature is None:
-            _LOGGER.error(f"{my_function_name:} No temperature provided to set for {register_id}")
+            _LOGGER.error(f"{my_function_name:} No temperature provided to set for {entity_id}")
             return
-        _LOGGER.debug(f"Trying to set {temperature} for {register_id}")
+        _LOGGER.debug(f"Trying to set {temperature} for {entity_id}")
         
         config_data = self._hass.data[DOMAIN]["entities"]
-        config = config_data[register_id]
+        config = config_data[entity_id]
         myAddress = config["register_number"]
         myValue = int(temperature / config.get("multiplier", 1))
         mySlave = self._hass.data[DOMAIN]["wp_config"]["slave_id"]
         if self._access_mode == "read_only":
-            _LOGGER.warning(f"Write operation attempted in read-only mode for {my_function_name} to {register_id} to myAddress {myAddress} with value {myValue}.")
+            _LOGGER.warning(f"Write operation attempted in read-only mode for {my_function_name} to {entity_id} to myAddress {myAddress} with value {myValue}.")
             return
-        await self.write_register_with_protection(address=myAddress, value=myValue, slave=mySlave, register_id=register_id)
+        await self.write_register_with_protection(address=myAddress, value=myValue, slave=mySlave, entity_id=entity_id)
         await self.async_refresh_modbus_data()
 
-    async def set_rltkuehlen(self, temperature: float, register_id):
+    async def set_rltkuehlen(self, temperature: float, entity_id):
       # 104
         if temperature is None:
             return
@@ -473,9 +491,9 @@ class HaHeliothermModbusHub:
         myValue = int(temp_int)
         mySlave = self._hass.data[DOMAIN]["wp_config"]["slave_id"]
         if self._access_mode == "read_only":
-            _LOGGER.warning(f"Write operation attempted in read-only mode for {myFunctionName} to{register_id} to myAddress {myAddress} with value {myValue}.")
+            _LOGGER.warning(f"Write operation attempted in read-only mode for {myFunctionName} to{entity_id} to myAddress {myAddress} with value {myValue}.")
             return
-        await self.write_register_with_protection(address=myAddress, value=myValue, slave=mySlave, register_id=register_id)
+        await self.write_register_with_protection(address=myAddress, value=myValue, slave=mySlave, entity_id=entity_id)
         await self.async_refresh_modbus_data()
 
     async def set_ww_bereitung(self, temp_min: float, temp_max: float, register_id):
@@ -498,8 +516,8 @@ class HaHeliothermModbusHub:
         if self._access_mode == "read_only":
             _LOGGER.warning(f"Write operation attempted in read-only mode for {myFunctionName} to{register_id} to myAddress {myAddress} with value {myValue} second register: {config_min["register_number"]} with value {temp_min_int}.")
             return
-        await self.write_register_with_protection(address=myAddress, value=myValue, slave=mySlave, register_id=register_id)
+        await self.write_register_with_protection(address=myAddress, value=myValue, slave=mySlave, entity_id=register_id)
         myAddress = config_min["register_number"]
         myValue = int(temp_min_int)
-        await self.write_register_with_protection(address=myAddress, value=myValue, slave=mySlave, register_id=register_id)
+        await self.write_register_with_protection(address=myAddress, value=myValue, slave=mySlave, entity_id=register_id)
         await self.async_refresh_modbus_data()
