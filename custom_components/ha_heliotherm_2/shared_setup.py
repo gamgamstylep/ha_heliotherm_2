@@ -12,8 +12,11 @@ async def get_combined_entity(hass, combined_entity):
     for attribute_key, attribute_value in combined_entity_original.get("attributes_from_register").items():
       combined_entity[attribute_key] = entities.get(attribute_value, {}).get("register_number")
       if is_first:
+        excluded_keys = {"description", "supported_features", "type"}
         for entity_key, entity_value in entities.get(attribute_value, {}).items():
-          combined_entity[entity_key] = entity_value
+            #_LOGGER.debug(f"combined Entity_key: {entity_key}, Entity_value: {entity_value}")
+            if entity_key not in excluded_keys:
+                combined_entity[entity_key] = entity_value
         is_first = False
     return combined_entity
 
@@ -81,7 +84,7 @@ async def async_setup_shared(
             entity_specific_dict=entity_specific_dict,
         )
         entity._attr_name = entity.name  # Ensure name is set
-        _LOGGER.debug(f"Entity: {entity}")
+        #_LOGGER.debug(f"Entity: {entity}")
         entities_to_add.append(entity)
         added_entities.add(entity_key)  # Mark as added
 

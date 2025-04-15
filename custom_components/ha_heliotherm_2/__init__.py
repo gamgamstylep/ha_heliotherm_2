@@ -308,12 +308,16 @@ class HaHeliothermModbusHub:
         try:
             # Process data from registers
             added_entities = self._hass.data[DOMAIN][self._name]["added_entities"]
-            _LOGGER.debug(f"Added entities: {added_entities}")
-            for entity_key, wp_entity_object in self._hass.data[DOMAIN]["entities"].items():
+            #_LOGGER.debug(f"Added entities: {added_entities}")
+            for entity_key in added_entities:
+                # self._hass.data[DOMAIN]["entities"].items():
+                wp_entity_object = self._hass.data[DOMAIN]["entities"].get(entity_key)
+                if wp_entity_object is None:
+                    _LOGGER.error(f"Entity {entity_key} not found in config")
+                    continue
+                #_LOGGER.debug(f"Entity key: {entity_key} wp_entity_object: {wp_entity_object}")
                 register_number = int(wp_entity_object["register_number"])
                 #_LOGGER.debug(f"Register number: {register_number}")
-                if entity_key not in added_entities:
-                  continue
                 step = float(wp_entity_object["step"])
                 # Ensure register number exists in modbusdata_values
                 register_value = None
@@ -430,9 +434,9 @@ class HaHeliothermModbusHub:
             target_temperature_high_entity_key = entityObject._entity.get("attributes_from_register").get("target_temperature_high")
             _LOGGER.debug(f"target_temperature_high_entity_key: {target_temperature_high_entity_key}")
             temperature = float(option["target_temperature_low"])
-            #await self.set_temperature(temperature, target_temperature_low_entity_key)
+            await self.set_temperature(temperature, target_temperature_low_entity_key)
             temperature = float(option["target_temperature_high"])
-            #await self.set_temperature(temperature, target_temperature_high_entity_key)
+            await self.set_temperature(temperature, target_temperature_high_entity_key)
 
     async def set_operating_mode(self, operation_mode: str, register_id):
       #_LOGGER.debug(f"Trying to set {operation_mode} for {register_id}")

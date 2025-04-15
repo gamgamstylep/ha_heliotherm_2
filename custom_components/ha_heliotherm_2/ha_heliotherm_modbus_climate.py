@@ -80,18 +80,44 @@ class HaHeliothermModbusClimate(HaHeliothermBaseEntity, ClimateEntity):
             "custom_status": "active",
             "temperature_range": f"{self.min_temp}-{self.max_temp}°C"
         }
+
+    def _update_from_hub_data(self):
+        """Aktualisiere Entity-Zustände basierend auf Hub-Daten."""
+        #_LOGGER.debug(f"Aktualisiere Daten für Entity-Key {self._entity_key} mit Hub-Daten: {self._hub.data}")
+        
+        if self._entity_key in self._hub.data:
+            self._attr_current_temperature = self._hub.data[self._entity_key]
+            self._attr_target_temperature = self._attr_current_temperature
+
+        if self._entity.get("combined_entity", False):
+            attributes_from_register = self._entity.get("attributes_from_register", {})
+
+            target_temperature_low_entity_key = attributes_from_register.get("target_temperature_low")
+            if target_temperature_low_entity_key and target_temperature_low_entity_key in self._hub.data:
+                self._attr_target_temperature_low = self._hub.data[target_temperature_low_entity_key]
+
+            target_temperature_high_entity_key = attributes_from_register.get("target_temperature_high")
+            if target_temperature_high_entity_key and target_temperature_high_entity_key in self._hub.data:
+                self._attr_target_temperature_high = self._hub.data[target_temperature_high_entity_key]
+
+        # 🟢 Jetzt neuen Zustand in der UI anzeigen
+        self.async_write_ha_state()
+
+
         
     async def async_set_temperature(self, **kwargs) -> None:
         """Set new target temperature."""
+        # Wann gebraucht? → Wenn der Benutzer in der UI eine neue Temperatur setzt.
+        # Was macht sie? → Speichert den Wert lokal und löst über deinen Hub ein Setzen auf dem Modbus aus.
         _LOGGER.debug(f"Setting temperature to {kwargs}")
         if ATTR_TEMPERATURE in kwargs:
             self._attr_target_temperature = float(kwargs[ATTR_TEMPERATURE])
             self._attr_current_temperature = float(kwargs[ATTR_TEMPERATURE])
         if "target_temperature_low" in kwargs:
+            _LOGGER.debug(f"Setting target temperature low to {kwargs['target_temperature_low']}")
             self._attr_target_temperature_low = float(kwargs["target_temperature_low"])
         if "target_temperature_high" in kwargs:
             self._attr_target_temperature_high = float(kwargs["target_temperature_high"])
-        
         self.async_write_ha_state()
         
         custom_data = {
@@ -99,49 +125,20 @@ class HaHeliothermModbusClimate(HaHeliothermBaseEntity, ClimateEntity):
             "device_id": self.device_info.get("identifiers"),
         }
         self.hass.add_job(self._hub.setter_function_callback(self, kwargs, custom_data))
+        
 
     async def async_update(self):
-        """Update the entity state by reading values from the device."""
-        new_temperature = self._hub.data.get(self._entity_key)
-        
-        if new_temperature is not None:
-            self._attr_current_temperature = new_temperature
-            self.async_write_ha_state()
-        else:
-            _LOGGER.debug(f"No data found for key {self._entity_key} in hub {self._hub.name}")
-            
+      """Update the entity state by reading values from the device."""
+      self._update_from_hub_data()
+      self.async_write_ha_state()
+
     @callback
     def _modbus_data_updated(self):
         """Handle updated data from Modbus."""
-        _LOGGER.debug(f"Modbus data updated for (hubdata) {self._entity_key}: {self._hub.data}")
-        # Check if the entity key is in the hub data
-        if self._entity_key in self._hub.data:
-            self._attr_current_temperature = self._hub.data[self._entity_key]
-            self._attr_target_temperature = self._attr_current_temperature
-        _LOGGER.debug(f"self._entity_key: (self._entity) {self._entity_key}: {self._entity}")
-        # Check if the target temperature low and high keys are in the hub data
-        if self._entity.get("combined_entity", False):
-          target_temperature_low_entity_key = self._entity.get("attributes_from_register").get("target_temperature_low")
-          _LOGGER.debug(f"target_temperature_low_entity_key: {target_temperature_low_entity_key}")  
-          if target_temperature_low_entity_key in self._hub.data:
-              self._attr_target_temperature_low = self._hub.data["ww_minimaltemp"]
-          target_temperature_high_entity_key = self._entity.get("attributes_from_register").get("target_temperature_high")
-          _LOGGER.debug(f"target_temperature_high_entity_key: {target_temperature_high_entity_key}")
-          if target_temperature_high_entity_key in self._hub.data:
-              self._attr_target_temperature_high = self._hub.data["ww_normaltemp"]
+        #_LOGGER.debug(f"Modbus-Daten aktualisiert: {self._hub.data}")
+        self._update_from_hub_data()
         self.async_write_ha_state()
-    # @callback
-    # def _modbus_data_updated(self):
-    #     if self.entity_description.key in self._hub.data:
-    #         args = self._hub.data[self.entity_description.key]
-    #         if "temperature" in args:
-    #             self._attr_current_temperature = float(args["temperature"])
-    #             self._attr_target_temperature = float(args["temperature"])
-    #         if "target_temperature_low" in args:
-    #             self._attr_target_temperature_low = float(args["target_temperature_low"])
-    #         if "target_temperature_high" in args:
-    #             self._attr_target_temperature_high = float(args["target_temperature_high"])
-    #     self.async_write_ha_state()
+
             
     @property
     def native_value(self):
