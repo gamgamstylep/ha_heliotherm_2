@@ -41,8 +41,8 @@ class HaHeliothermModbusSensor(HaHeliothermBaseEntity, SensorEntity):
             native_unit_of_measurement=self._attr_native_unit_of_measurement,
             state_class=self._attr_state_class,
         )
-        _LOGGER.debug(f"line44: entity_key: {entity_key}")
-        _LOGGER.debug(f"line44: self._name: {self._name}")
+        #_LOGGER.debug(f"line44: entity_key: {entity_key}")
+        #_LOGGER.debug(f"line44: self._name: {self._name}")
         
         self._attr_native_value = None
 

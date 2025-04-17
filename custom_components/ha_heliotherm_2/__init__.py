@@ -64,37 +64,79 @@ async def load_config_once():
 
     return wp_json_config_data
 
+async def get_combined_entity(hass, combined_entity):
+  """Get the combined entity for a given entity."""
+  entities = hass.data[DOMAIN]["entities"]
+  _LOGGER.debug(f"Combined entity vor: {combined_entity}")
+  combined_entity_original = combined_entity.copy()
+  is_first = True
+  for attribute_key, attribute_value in combined_entity_original.get("attributes_from_register").items():
+    combined_entity["register_numbers"][attribute_key] = entities.get(attribute_value, {}).get("register_number")
+    if is_first:
+      excluded_keys = {"description", "supported_features", "type"}
+      for entity_key, entity_value in entities.get(attribute_value, {}).items():
+          #_LOGGER.debug(f"combined Entity_key: {entity_key}, Entity_value: {entity_value}")
+          if entity_key not in excluded_keys:
+              combined_entity[entity_key] = entity_value
+      is_first = False
+  return combined_entity
+
 async def async_setup(hass, config):
     """Set up the HaHeliotherm modbus component."""
     hass.data[DOMAIN] = {}
     """Set up the custom component."""
     # Load configuration asynchronously (only once)
     wp_json_config_data = await load_config_once()
-    access_mode = hass.data[DOMAIN]["wp_config_access_mode"] if "wp_config_access_mode" in hass.data[DOMAIN] else "read_only"
-
-    # Store the configuration data in hass.data for other components or entities to access
-    filtered_entities = {k: v for k, v in wp_json_config_data["entities"].items() if not v.get("omit", False)}
-    additional_entities = {k: v for k, v in wp_json_config_data["additional_entities"].items() if not v.get("omit", False)}
-    entities_combined = {k: v for k, v in wp_json_config_data["combined_entities"].items() if not v.get("omit", False)}
-    additional_sensor_entities = {k: v for k, v in additional_entities.items() if v["type"] == "sensor"}
-    sensor_entities = {k: v for k, v in filtered_entities.items() if v["type"] == "sensor"}
-    binary_sensor_entities = {k: v for k, v in filtered_entities.items() if v["type"] == "binary"}  
-    entities_climate = {k: v for k, v in filtered_entities.items() if v["type"] == "climate"}
-    select_entities = {k: v for k, v in filtered_entities.items() if v["type"] == "select"}
-    entities_climate_combined = {k: v for k, v in entities_combined.items() if v["type"] == "climate"}
-    hass.data[DOMAIN]["entities_sensor"] = sensor_entities
-    hass.data[DOMAIN]["entities_binary_sensor"] = binary_sensor_entities
-    hass.data[DOMAIN]["entities_climate"] = entities_climate
-    hass.data[DOMAIN]["entities_climate_combined"] = entities_climate_combined
-    hass.data[DOMAIN]["entities_select"] = select_entities
-    hass.data[DOMAIN]["entities"] = filtered_entities
-    hass.data[DOMAIN]["wp_config"] = wp_json_config_data["config"]
-    hass.data[DOMAIN]["combined_entities"] = wp_json_config_data.get("combined_entities", {})
     if wp_json_config_data["config"]["logging"]["level"] == "DEBUG":
       _LOGGER.setLevel(logging.DEBUG)
     else:
       _LOGGER.setLevel(logging.INFO)
+    access_mode = hass.data[DOMAIN]["wp_config_access_mode"] if "wp_config_access_mode" in hass.data[DOMAIN] else "read_only"
+
+    # Store the configuration data in hass.data for other components or entities to access
     
+    filtered_entities = {k: v for k, v in wp_json_config_data["entities"].items() if not v.get("omit", False)}
+    additional_entities = {k: v for k, v in wp_json_config_data["additional_entities"].items() if not v.get("omit", False)}
+    additional_sensor_entities = {k: v for k, v in additional_entities.items() if v["type"] == "sensor"}
+    
+    hass.data[DOMAIN]["wp_config"] = wp_json_config_data["config"]
+
+    hass.data[DOMAIN]["entities"] = filtered_entities
+    hass.data[DOMAIN]["combined_entities"] = wp_json_config_data.get("combined_entities", {})
+    entities_combined = {k: v for k, v in wp_json_config_data["combined_entities"].items() if not v.get("omit", False)}
+    _LOGGER.debug(f"Entities combined: {entities_combined}")
+    entities_combinded_enriched = {}
+    for entity_key, entity_value in entities_combined.items():
+        if entity_value.get("omit", False):
+            continue
+        if entity_value.get("combined_entity", False):
+            combined_entity = await get_combined_entity(hass, entity_value)
+            if combined_entity:
+                #_LOGGER.debug(f"Combined entity: {combined_entity}")
+                # Add the combined entity to the enriched dictionary
+                entities_combinded_enriched[entity_key] = combined_entity
+                #_LOGGER.debug(f"my_entity updated with combined: {entity_value}")
+        else:
+            # Add the original entity to the enriched dictionary
+            entities_combinded_enriched[entity_key] = entity_value
+    #_LOGGER.debug(f"Entities combined enriched: {entities_combinded_enriched}")
+    # Add the enriched combined entities to hass.data[DOMAIN]["entities"]
+    filtered_entities.update(entities_combinded_enriched)
+    hass.data[DOMAIN]["entities"] = filtered_entities
+    #_LOGGER.debug(f"hass_entities: {hass.data[DOMAIN]["entities"]}")
+    hass.data[DOMAIN]["additional_entities"] = additional_entities
+    sensor_entities = {k: v for k, v in filtered_entities.items() if v["type"] == "sensor"}
+    binary_sensor_entities = {k: v for k, v in filtered_entities.items() if v["type"] == "binary"}  
+    entities_climate = {k: v for k, v in filtered_entities.items() if v["type"] == "climate"}
+    select_entities = {k: v for k, v in filtered_entities.items() if v["type"] == "select"}
+    #entities_climate_combined = {k: v for k, v in entities_combined.items() if v["type"] == "climate"}
+    hass.data[DOMAIN]["entities_sensor"] = sensor_entities
+    hass.data[DOMAIN]["entities_binary_sensor"] = binary_sensor_entities
+    hass.data[DOMAIN]["entities_climate"] = entities_climate
+    #hass.data[DOMAIN]["entities_climate_combined"] = entities_climate_combined
+    hass.data[DOMAIN]["entities_select"] = select_entities
+
+
     async def set_room_temperature_service(call):
         """Handle setting the room temperature using the heat pump."""
         device_id = call.data.get("device_id")
@@ -313,9 +355,12 @@ class HaHeliothermModbusHub:
                 # self._hass.data[DOMAIN]["entities"].items():
                 wp_entity_object = self._hass.data[DOMAIN]["entities"].get(entity_key)
                 if wp_entity_object is None:
+                    wp_entity_object = self._hass.data[DOMAIN]["combined_entities"].get(entity_key)
+                if wp_entity_object is None:
                     _LOGGER.error(f"Entity {entity_key} not found in config")
                     continue
                 #_LOGGER.debug(f"Entity key: {entity_key} wp_entity_object: {wp_entity_object}")
+                #if wp_entity_object.get("combined_entity", False):
                 register_number = int(wp_entity_object["register_number"])
                 #_LOGGER.debug(f"Register number: {register_number}")
                 step = float(wp_entity_object["step"])
@@ -427,8 +472,9 @@ class HaHeliothermModbusHub:
             temperature = float(option["temperature"])
             await self.set_rltkuehlen(temperature, entity_key) 
         
-            
+        
         if entityObject.entity_description.key == "hotwater_min_max":
+            _LOGGER.debug(f"Setting hot water min/max to {option}")
             target_temperature_low_entity_key = entityObject._entity.get("attributes_from_register").get("target_temperature_low")
             _LOGGER.debug(f"target_temperature_low_entity_key: {target_temperature_low_entity_key}")
             target_temperature_high_entity_key = entityObject._entity.get("attributes_from_register").get("target_temperature_high")

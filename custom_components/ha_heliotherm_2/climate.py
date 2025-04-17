@@ -16,10 +16,10 @@ async def async_setup_entry(hass, entry, async_add_entities):
         entity_type_key="entities_climate",
         entity_class=HaHeliothermModbusClimate,
     )
-    await async_setup_shared(
-        hass,
-        entry,
-        async_add_entities,
-        entity_type_key="entities_climate_combined",
-        entity_class=HaHeliothermModbusClimate,
-    )
+    # await async_setup_shared(
+    #     hass,
+    #     entry,
+    #     async_add_entities,
+    #     entity_type_key="entities_climate_combined",
+    #     entity_class=HaHeliothermModbusClimate,
+    # )
