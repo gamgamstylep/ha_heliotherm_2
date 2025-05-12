@@ -95,10 +95,11 @@ class HaHeliothermModbusClimate(HaHeliothermBaseEntity, ClimateEntity):
             target_temperature_low_entity_key = attributes_from_register.get("target_temperature_low")
             if target_temperature_low_entity_key and target_temperature_low_entity_key in self._hub.data:
                 self._attr_target_temperature_low = self._hub.data[target_temperature_low_entity_key]
-
+                _LOGGER.debug(f"update_hub_data:self._attr_target_temperature_low: {self._attr_target_temperature_low}")
             target_temperature_high_entity_key = attributes_from_register.get("target_temperature_high")
             if target_temperature_high_entity_key and target_temperature_high_entity_key in self._hub.data:
                 self._attr_target_temperature_high = self._hub.data[target_temperature_high_entity_key]
+                _LOGGER.debug(f"update_hub_data:self._attr_target_temperature_high: {self._attr_target_temperature_high}")
 
         # 🟢 Jetzt neuen Zustand in der UI anzeigen
         self.async_write_ha_state()
@@ -118,7 +119,7 @@ class HaHeliothermModbusClimate(HaHeliothermBaseEntity, ClimateEntity):
             self._attr_target_temperature_low = float(kwargs["target_temperature_low"])
         if "target_temperature_high" in kwargs:
             self._attr_target_temperature_high = float(kwargs["target_temperature_high"])
-        self.async_write_ha_state()
+        self.async_write_ha_state() # If a Modbus device sends updated temperature data, you would update the entity's internal state (e.g., `_attr_current_temperature`) and then call `async_write_ha_state` to reflect the changes in Home Assistant.
         
         custom_data = {
             "entity_key": self._entity_key,
