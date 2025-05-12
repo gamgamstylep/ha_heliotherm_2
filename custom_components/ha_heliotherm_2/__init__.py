@@ -71,6 +71,9 @@ async def get_combined_entity(hass, combined_entity):
   combined_entity_original = combined_entity.copy()
   is_first = True
   for attribute_key, attribute_value in combined_entity_original.get("attributes_from_register").items():
+    if "register_numbers" not in combined_entity:
+            combined_entity["register_numbers"] = {}
+    _LOGGER.debug(f"attribute_key: {attribute_key}")
     combined_entity["register_numbers"][attribute_key] = entities.get(attribute_value, {}).get("register_number")
     if is_first:
       excluded_keys = {"description", "supported_features", "type"}
