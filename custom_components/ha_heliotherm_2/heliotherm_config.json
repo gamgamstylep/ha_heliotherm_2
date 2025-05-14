@@ -1307,7 +1307,7 @@
   "rlt_min_cooling": {
     "register_number": 104,
     "type": "climate",
-    "omit": true,
+    "omit": false,
     "register_codes": "03,06,16",
     "data_type": "int16",
     "description": {
@@ -1340,7 +1340,7 @@
     "unit": "°C",
     "step": 1,
     "min": 25,
-    "max": 58,
+    "max": 57,
     "multiplier": 0.1,
     "controller_id": "SP83",
     "mode": "writeable",
@@ -1363,7 +1363,7 @@
     "unit": "°C",
     "step": 1,
     "min": 25,
-    "max": 58,
+    "max": 57,
     "multiplier": 0.1,
     "controller_id": "SP85",
     "mode": "writeable",
@@ -1984,18 +1984,19 @@
     }
 },
   "combined_entities": {
-    "make_hot_water": {
-    "attribute_from_register": {
-      "min": "ww_minimaltemp",
-      "max": "ww_normaltemp"
-    },
-    "type": "climate",
-    "description": {
-      "en": "Hotwater Minimal- and Normaltemperature",
-      "de": "Warmwasser Minimal- und Normaltemperatur"
-    },
-    "unit": "°C",
-    "step": 0.1
+    "hotwater_min_max": {
+      "combined_entity": true,
+      "attributes_from_register": {
+        "target_temperature_low": "ww_minimaltemp",
+        "target_temperature_high": "ww_normaltemp"
+      },
+      "type": "climate",
+      "comment": "ClimateEntityFeature.TARGET_TEMPERATURE_RANGE",
+      "supported_features": "range",
+      "description": {
+        "en": "Hotwater Minimal- and Normaltemperature",
+        "de": "Warmwasser Minimal- und Normaltemperatur"
+    }
       }
   }
   
