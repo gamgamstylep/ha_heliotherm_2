@@ -475,16 +475,19 @@ class HaHeliothermModbusHub:
             temperature = float(option["temperature"])
             await self.set_rltkuehlen(temperature, entity_key) 
         
-        
+        # Testen ob ob die Funktion auch für den Hotwater min/max funktioniert
         if entityObject.entity_description.key == "hotwater_min_max":
             _LOGGER.debug(f"Setting hot water min/max to {option}")
             target_temperature_low_entity_key = entityObject._entity.get("attributes_from_register").get("target_temperature_low")
-            _LOGGER.debug(f"target_temperature_low_entity_key: {target_temperature_low_entity_key}")
+            #_LOGGER.debug(f"target_temperature_low_entity_key: {target_temperature_low_entity_key}")
+            _LOGGER.debug(f"hotwater: Setter function callback for {entityObject.entity_description.key} with option {option}")
             target_temperature_high_entity_key = entityObject._entity.get("attributes_from_register").get("target_temperature_high")
             _LOGGER.debug(f"target_temperature_high_entity_key: {target_temperature_high_entity_key}")
-            temperature = float(option["target_temperature_low"])
+            # warum target_temp_high und target_temp_low und nicht target_temperature_low und target_temperature_high?
+            temperature = float(option["target_temp_low"])
+            _LOGGER.debug(f"target_temp_low: {temperature}")
             await self.set_temperature(temperature, target_temperature_low_entity_key)
-            temperature = float(option["target_temperature_high"])
+            temperature = float(option["target_temp_high"])
             await self.set_temperature(temperature, target_temperature_high_entity_key)
 
     async def set_operating_mode(self, operation_mode: str, register_id):

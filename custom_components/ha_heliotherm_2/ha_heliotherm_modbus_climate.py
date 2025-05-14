@@ -91,9 +91,11 @@ class HaHeliothermModbusClimate(HaHeliothermBaseEntity, ClimateEntity):
 
         if self._entity.get("combined_entity", False):
             attributes_from_register = self._entity.get("attributes_from_register", {})
-
+            # _LOGGER.debug(f"attributes_from_register: {attributes_from_register}")  
             target_temperature_low_entity_key = attributes_from_register.get("target_temperature_low")
             if target_temperature_low_entity_key and target_temperature_low_entity_key in self._hub.data:
+                _LOGGER.debug(f"self._hub.data[target_temperature_low_entity_key]: {self._hub.data[target_temperature_low_entity_key]}") 
+              
                 self._attr_target_temperature_low = self._hub.data[target_temperature_low_entity_key]
                 _LOGGER.debug(f"update_hub_data:self._attr_target_temperature_low: {self._attr_target_temperature_low}")
             target_temperature_high_entity_key = attributes_from_register.get("target_temperature_high")
@@ -125,6 +127,7 @@ class HaHeliothermModbusClimate(HaHeliothermBaseEntity, ClimateEntity):
             "entity_key": self._entity_key,
             "device_id": self.device_info.get("identifiers"),
         }
+        # setter_function_callback dann für beide temperature_low und temperature_high aufrufen - noch nicht implementiert ?
         self.hass.add_job(self._hub.setter_function_callback(self, kwargs, custom_data))
         
 
