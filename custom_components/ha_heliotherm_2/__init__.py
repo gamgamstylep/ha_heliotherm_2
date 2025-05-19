@@ -448,7 +448,31 @@ class HaHeliothermModbusHub:
 
     async def setter_function_callback(self, entityObject: Entity, option, custom_data):
         #_LOGGER.debug(f"Setter function callback for {entity.entity_description.key} with option {option}")
+        entity_type = entityObject.type
         entity_key = custom_data.get("entity_key")
+        # auf climate und combined_entities umstellen statt nur für hotwater_min_max
+        if entityObject.entity_description.key == "hotwater_min_max":
+            _LOGGER.debug(f"Setting hot water min/max to {option}")
+            target_temperature_low_entity_key = entityObject._entity.get("attributes_from_register").get("target_temperature_low")
+            #_LOGGER.debug(f"target_temperature_low_entity_key: {target_temperature_low_entity_key}")
+            _LOGGER.debug(f"hotwater: Setter function callback for {entityObject.entity_description.key} with option {option}")
+            target_temperature_high_entity_key = entityObject._entity.get("attributes_from_register").get("target_temperature_high")
+            _LOGGER.debug(f"target_temperature_high_entity_key: {target_temperature_high_entity_key}")
+            # warum target_temp_high und target_temp_low und nicht target_temperature_low und target_temperature_high?
+            temperature = float(option["target_temp_low"])
+            _LOGGER.debug(f"target_temp_low: {temperature}")
+            await self.set_temperature(temperature, target_temperature_low_entity_key)
+            temperature = float(option["target_temp_high"])
+            await self.set_temperature(temperature, target_temperature_high_entity_key)
+        if entity_type == "select":
+            _LOGGER.debug(f"Setting select from entity_type option for {entity_type}:{entityObject.entity_description.key} to {option}")
+            await self.set_operating_mode(option, entity_key)
+            return
+        if entity_type == "climate":
+            _LOGGER.debug(f"Setting climate from entity_type option for {entity_type}:{entityObject.entity_description.key} to {option}")
+            await self.set_temperature(option, entity_key)
+            return
+        # den rest kann man dann rausgeben, wenn dies mit climate und select funktioniert
         if entityObject.entity_description.key == "operating_mode":
             _LOGGER.debug(f"Setting operating mode to {option}")
             await self.set_operating_mode(option, entity_key)
@@ -475,20 +499,7 @@ class HaHeliothermModbusHub:
             temperature = float(option["temperature"])
             await self.set_rltkuehlen(temperature, entity_key) 
         
-        # Testen ob ob die Funktion auch für den Hotwater min/max funktioniert
-        if entityObject.entity_description.key == "hotwater_min_max":
-            _LOGGER.debug(f"Setting hot water min/max to {option}")
-            target_temperature_low_entity_key = entityObject._entity.get("attributes_from_register").get("target_temperature_low")
-            #_LOGGER.debug(f"target_temperature_low_entity_key: {target_temperature_low_entity_key}")
-            _LOGGER.debug(f"hotwater: Setter function callback for {entityObject.entity_description.key} with option {option}")
-            target_temperature_high_entity_key = entityObject._entity.get("attributes_from_register").get("target_temperature_high")
-            _LOGGER.debug(f"target_temperature_high_entity_key: {target_temperature_high_entity_key}")
-            # warum target_temp_high und target_temp_low und nicht target_temperature_low und target_temperature_high?
-            temperature = float(option["target_temp_low"])
-            _LOGGER.debug(f"target_temp_low: {temperature}")
-            await self.set_temperature(temperature, target_temperature_low_entity_key)
-            temperature = float(option["target_temp_high"])
-            await self.set_temperature(temperature, target_temperature_high_entity_key)
+        
 
     async def set_operating_mode(self, operation_mode: str, register_id):
       #_LOGGER.debug(f"Trying to set {operation_mode} for {register_id}")

@@ -3,24 +3,6 @@ from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
-# async def get_combined_entity(hass, combined_entity):
-#     """Get the combined entity for a given entity."""
-#     entities = hass.data[DOMAIN]["entities"]
-#     _LOGGER.debug(f"Combined entity vor: {combined_entity}")
-#     combined_entity_original = combined_entity.copy()
-#     is_first = True
-#     for attribute_key, attribute_value in combined_entity_original.get("attributes_from_register").items():
-#       combined_entity[attribute_key] = entities.get(attribute_value, {}).get("register_number")
-#       if is_first:
-#         excluded_keys = {"description", "supported_features", "type"}
-#         for entity_key, entity_value in entities.get(attribute_value, {}).items():
-#             #_LOGGER.debug(f"combined Entity_key: {entity_key}, Entity_value: {entity_value}")
-#             if entity_key not in excluded_keys:
-#                 combined_entity[entity_key] = entity_value
-#         is_first = False
-#     hass.data[DOMAIN]["entities"].update(combined_entity)
-#     return combined_entity
-
 async def async_setup_shared(
     hass, entry, async_add_entities, entity_type_key, entity_class, unit_mapping=None
 ):
@@ -46,12 +28,7 @@ async def async_setup_shared(
         entity_specific_dict = {}
         if my_entity.get("omit", False):
             continue
-        # if my_entity.get("combined_entity", False):
-        #     combined_entity = await get_combined_entity(hass, my_entity)
-        #     if combined_entity:
-        #         _LOGGER.debug(f"Combined entity: {combined_entity}")
-        #         my_entity.update(combined_entity)
-        #         _LOGGER.debug(f"my_entity updated with combined: {my_entity}")
+
         if my_entity.get("register_number") is None:
                 continue
         if my_entity["register_number"] > wp_config["register_number_read_max"]:
@@ -95,5 +72,4 @@ async def async_setup_shared(
     hass.data[DOMAIN][hub_name]["added_entities"].update(added_entities)
     _LOGGER.debug(f"Added entities: {added_entities}")
     # Update the hub's added entities
-    #hass.data[DOMAIN][hub_name]["added_entities"] = added_entities
     async_add_entities(entities_to_add)

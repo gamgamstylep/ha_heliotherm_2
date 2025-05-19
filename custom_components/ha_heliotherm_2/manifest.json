@@ -1,19 +1,14 @@
-{  
+{
   "domain": "ha_heliotherm_2",
   "name": "HaHeliotherm2",
-  "codeowners": ["@gamgamstylep"],
-  "config_flow": true,
-  "dependencies": ["modbus"],
-  "documentation": "https://github.com/gamgamstylep/ha_heliotherm_2/",
-  "homekit": {},
-  "iot_class": "local_polling",
-  "issue_tracker": "https://github.com/gamgamstylep/ha_heliotherm_2/issues",
-  "requirements": [
-    "pymodbus==3.8.6"
-  ],
-  "logo": "logo.png",
-  "icon": "mdi:robot",
-  "ssdp": [],
   "version": "1.0.41",
-  "zeroconf": []  
+  "documentation": "https://github.com/gamgamstylep/ha_heliotherm_2/",
+  "issue_tracker": "https://github.com/gamgamstylep/ha_heliotherm_2/issues",
+  "dependencies": ["modbus"],
+  "config_flow": true,
+  "codeowners": ["@gamgamstylep"],
+  "iot_class": "local_polling",
+  "requirements": ["pymodbus==3.8.6"],
+  "logo": "logo.png",
+  "icon": "mdi:robot"
 }
