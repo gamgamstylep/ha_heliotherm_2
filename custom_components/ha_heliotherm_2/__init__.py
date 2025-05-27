@@ -447,11 +447,16 @@ class HaHeliothermModbusHub:
       return options_reversed.get(operating_mode_name)  # Lookup by string key
 
     async def setter_function_callback(self, entityObject: Entity, option, custom_data):
-        #_LOGGER.debug(f"Setter function callback for {entity.entity_description.key} with option {option}")
-        entity_type = entityObject.type
-        entity_key = custom_data.get("entity_key")
+        _LOGGER.debug(f"custom_data {custom_data}")
+        _LOGGER.debug(f"entityObject {entityObject}")
+        entity = custom_data.get("entity", None)  
+        entity_type = entity.get("type", None) if entity else None
+        entity_key = custom_data.get("entity_key") if custom_data else None
+        combined_entity = entity.get("combined_entity", False)
         # auf climate und combined_entities umstellen statt nur für hotwater_min_max
-        if entityObject.entity_description.key == "hotwater_min_max":
+        # if entityObject.entity_description.key == "hotwater_min_max":
+        _LOGGER.debug(f"entity_type {entity_type} and entity_key {entity_key} and combined_entity {combined_entity}")
+        if entity_type == "climate" and combined_entity:
             _LOGGER.debug(f"Setting hot water min/max to {option}")
             target_temperature_low_entity_key = entityObject._entity.get("attributes_from_register").get("target_temperature_low")
             #_LOGGER.debug(f"target_temperature_low_entity_key: {target_temperature_low_entity_key}")

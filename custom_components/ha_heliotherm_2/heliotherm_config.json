@@ -29,7 +29,7 @@
     "update_interval": 60,
     "logging": {
       "enabled": true,
-      "level": "INFO"
+      "level": "DEBUG"
     },
     "reading_registers_begin": 10,
     "reading_registers_end": 99,
