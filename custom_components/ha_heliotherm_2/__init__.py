@@ -477,32 +477,32 @@ class HaHeliothermModbusHub:
             _LOGGER.debug(f"Setting climate from entity_type option for {entity_type}:{entityObject.entity_description.key} to {option}")
             await self.set_temperature(option, entity_key)
             return
-        # den rest kann man dann rausgeben, wenn dies mit climate und select funktioniert
-        if entityObject.entity_description.key == "operating_mode":
-            _LOGGER.debug(f"Setting operating mode to {option}")
-            await self.set_operating_mode(option, entity_key)
-            return
-        if entityObject.entity_description.key == "mkr1_operating_mode":
-            await self.set_operating_mode(option, entity_key)
-            return
-        if entityObject.entity_description.key == "mkr2_operating_mode":
-            await self.set_operating_mode(option, entity_key)
-            return
-        if entityObject.entity_description.key == "desired_room_temperature":
-            temperature = float(option["temperature"])
-            await self.set_temperature(temperature, entity_key)
+        # # den rest kann man dann rausgeben, wenn dies mit climate und select funktioniert
+        # if entityObject.entity_description.key == "operating_mode":
+        #     _LOGGER.debug(f"Setting operating mode to {option}")
+        #     await self.set_operating_mode(option, entity_key)
+        #     return
+        # if entityObject.entity_description.key == "mkr1_operating_mode":
+        #     await self.set_operating_mode(option, entity_key)
+        #     return
+        # if entityObject.entity_description.key == "mkr2_operating_mode":
+        #     await self.set_operating_mode(option, entity_key)
+        #     return
+        # if entityObject.entity_description.key == "desired_room_temperature":
+        #     temperature = float(option["temperature"])
+        #     await self.set_temperature(temperature, entity_key)
             
-        if entityObject.entity_description.key == "ww_normaltemp":
-            temperature = float(option["temperature"])
-            await self.set_temperature(temperature, entity_key)
+        # if entityObject.entity_description.key == "ww_normaltemp":
+        #     temperature = float(option["temperature"])
+        #     await self.set_temperature(temperature, entity_key)
         
-        if entityObject.entity_description.key == "ww_minimaltemp":
-            temperature = float(option["temperature"])
-            await self.set_temperature(temperature, entity_key)
+        # if entityObject.entity_description.key == "ww_minimaltemp":
+        #     temperature = float(option["temperature"])
+        #     await self.set_temperature(temperature, entity_key)
         
-        if entityObject.entity_description.key == "rlt_min_cooling":
-            temperature = float(option["temperature"])
-            await self.set_rltkuehlen(temperature, entity_key) 
+        # if entityObject.entity_description.key == "rlt_min_cooling":
+        #     temperature = float(option["temperature"])
+        #     await self.set_rltkuehlen(temperature, entity_key) 
         
         
 
@@ -551,24 +551,7 @@ class HaHeliothermModbusHub:
         await self.write_register_with_protection(address=myAddress, value=myValue, slave=mySlave, entity_id=entity_id)
         await self.async_refresh_modbus_data()
 
-    async def set_rltkuehlen(self, temperature: float, entity_id):
-      # 104
-        if temperature is None:
-            return
-        temp_int = int(temperature * 10)
-        config_data = self._hass.data[DOMAIN]["entities"]
-        config = config_data["rltMinKuelung"]
-        myFunctionName = inspect.currentframe().f_code.co_name
-        myAddress = config["register_number"]
-        myValue = int(temp_int)
-        mySlave = self._hass.data[DOMAIN]["wp_config"]["slave_id"]
-        if self._access_mode == "read_only":
-            _LOGGER.warning(f"Write operation attempted in read-only mode for {myFunctionName} to{entity_id} to myAddress {myAddress} with value {myValue}.")
-            return
-        await self.write_register_with_protection(address=myAddress, value=myValue, slave=mySlave, entity_id=entity_id)
-        await self.async_refresh_modbus_data()
 
-    async def set_ww_bereitung(self, temp_min: float, temp_max: float, register_id):
         if self._access_mode == "read_only":
             _LOGGER.warning("Write operation attempted in read-only mode.")
             return

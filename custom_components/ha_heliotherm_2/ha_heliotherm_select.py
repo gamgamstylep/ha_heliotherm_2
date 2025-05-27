@@ -38,6 +38,7 @@ class HeliothermSelect(HaHeliothermBaseEntity, SelectEntity):
         custom_data = {
             "entity_key": self._entity_key,
             "device_id": self.device_info.get("identifiers"),
+            "entity": self._entity
         }
 
         # Call the hub function with extra data

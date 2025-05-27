@@ -8,7 +8,5 @@
   "config_flow": true,
   "codeowners": ["@gamgamstylep"],
   "iot_class": "local_polling",
-  "requirements": ["pymodbus==3.8.6"],
-  "logo": "logo.png",
-  "icon": "mdi:robot"
+  "requirements": ["pymodbus==3.8.6"]
 }
