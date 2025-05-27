@@ -3,51 +3,54 @@
 # 1. Config read only or read/write cannot be changed after initial setup
 # setter_function_callback should work automatically for all entities
 from __future__ import annotations
+try:
+  import asyncio
+  from datetime import timedelta
+  import logging
+  _LOGGER = logging.getLogger(__name__)
+  _LOGGER.debug("Lade ha_heliotherm_2...")
+  import threading
+  from typing import Optional
+  import json
+  import aiofiles
+  import inspect
+  import os
+  import logging
 
-import asyncio
-from datetime import timedelta
-import logging
-import threading
-from typing import Optional
-import json
-import aiofiles
-import inspect
-import os
-import logging
+  # Get the logger for your custom component (use your component's name)
 
-# Get the logger for your custom component (use your component's name)
-_LOGGER = logging.getLogger(__name__)
+  from pymodbus.client import ModbusTcpClient
+  from pymodbus.constants import Endian
+  from pymodbus.exceptions import ConnectionException
+  from pymodbus.payload import BinaryPayloadDecoder
+  import voluptuous as vol
 
-from pymodbus.client import ModbusTcpClient
-from pymodbus.constants import Endian
-from pymodbus.exceptions import ConnectionException
-from pymodbus.payload import BinaryPayloadDecoder
-import voluptuous as vol
+  from homeassistant.helpers.entity import Entity
+  from homeassistant.config_entries import ConfigEntry
+  from homeassistant.const import (
+      CONF_HOST,
+      CONF_NAME,
+      CONF_PORT,
+      CONF_SCAN_INTERVAL,
+      Platform,
+  )
+  from homeassistant.core import HomeAssistant, callback, ServiceCall
+  from homeassistant.helpers.event import async_track_time_interval
 
-from homeassistant.helpers.entity import Entity
-from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import (
-    CONF_HOST,
-    CONF_NAME,
-    CONF_PORT,
-    CONF_SCAN_INTERVAL,
-    Platform,
-)
-from homeassistant.core import HomeAssistant, callback, ServiceCall
-from homeassistant.helpers.event import async_track_time_interval
-
-# Bestimme den Pfad zur JSON-Datei relativ zur __init__.py
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-JSON_PATH = os.path.join(BASE_DIR, "heliotherm_config.json")
-
-
-from .const import DOMAIN
+  # Bestimme den Pfad zur JSON-Datei relativ zur __init__.py
+  BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+  JSON_PATH = os.path.join(BASE_DIR, "heliotherm_config.json")
 
 
-config_file_path = JSON_PATH
+  from .const import DOMAIN
 
-# Store the loaded config data (None initially)
-wp_json_config_data = None
+
+  config_file_path = JSON_PATH
+
+  # Store the loaded config data (None initially)
+  wp_json_config_data = None
+except Exception as e:
+    _LOGGER.exception("Fehler beim Initialisieren: %s", e)
 
 # Async function to load the JSON config file once
 async def load_config_once():
@@ -85,6 +88,7 @@ async def get_combined_entity(hass, combined_entity):
   return combined_entity
 
 async def async_setup(hass, config):
+  try:
     """Set up the HaHeliotherm modbus component."""
     hass.data[DOMAIN] = {}
     """Set up the custom component."""
@@ -138,7 +142,9 @@ async def async_setup(hass, config):
     hass.data[DOMAIN]["entities_climate"] = entities_climate
     #hass.data[DOMAIN]["entities_climate_combined"] = entities_climate_combined
     hass.data[DOMAIN]["entities_select"] = select_entities
-
+    return True
+  except Exception as e:
+    _LOGGER.exception("Fehler beim async_setup: %s", e)
 
     async def set_room_temperature_service(call):
         """Handle setting the room temperature using the heat pump."""
@@ -182,6 +188,7 @@ async def async_setup(hass, config):
     return True
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
+  try:
     """Set up a HaHeliotherm modbus."""
     # from initial setup GUI - config flow
     host = entry.data[CONF_HOST] # from config flow
@@ -203,6 +210,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     hass.data[DOMAIN][name]["added_entities"] = set()
     await hass.config_entries.async_forward_entry_setups(entry, ["sensor", "binary_sensor", "climate", "select"])
     return True
+  except Exception as e:
+    _LOGGER.exception("Fehler beim async_setup_entry: %s", e)
 
 async def async_unload_entry(hass, entry):
     """Unload HaHeliotherm mobus entry."""
@@ -477,34 +486,6 @@ class HaHeliothermModbusHub:
             _LOGGER.debug(f"Setting climate from entity_type option for {entity_type}:{entityObject.entity_description.key} to {option}")
             await self.set_temperature(option, entity_key)
             return
-        # # den rest kann man dann rausgeben, wenn dies mit climate und select funktioniert
-        # if entityObject.entity_description.key == "operating_mode":
-        #     _LOGGER.debug(f"Setting operating mode to {option}")
-        #     await self.set_operating_mode(option, entity_key)
-        #     return
-        # if entityObject.entity_description.key == "mkr1_operating_mode":
-        #     await self.set_operating_mode(option, entity_key)
-        #     return
-        # if entityObject.entity_description.key == "mkr2_operating_mode":
-        #     await self.set_operating_mode(option, entity_key)
-        #     return
-        # if entityObject.entity_description.key == "desired_room_temperature":
-        #     temperature = float(option["temperature"])
-        #     await self.set_temperature(temperature, entity_key)
-            
-        # if entityObject.entity_description.key == "ww_normaltemp":
-        #     temperature = float(option["temperature"])
-        #     await self.set_temperature(temperature, entity_key)
-        
-        # if entityObject.entity_description.key == "ww_minimaltemp":
-        #     temperature = float(option["temperature"])
-        #     await self.set_temperature(temperature, entity_key)
-        
-        # if entityObject.entity_description.key == "rlt_min_cooling":
-        #     temperature = float(option["temperature"])
-        #     await self.set_rltkuehlen(temperature, entity_key) 
-        
-        
 
     async def set_operating_mode(self, operation_mode: str, register_id):
       #_LOGGER.debug(f"Trying to set {operation_mode} for {register_id}")
@@ -549,30 +530,4 @@ class HaHeliothermModbusHub:
             _LOGGER.warning(f"Write operation attempted in read-only mode for {my_function_name} to {entity_id} to myAddress {myAddress} with value {myValue}.")
             return
         await self.write_register_with_protection(address=myAddress, value=myValue, slave=mySlave, entity_id=entity_id)
-        await self.async_refresh_modbus_data()
-
-
-        if self._access_mode == "read_only":
-            _LOGGER.warning("Write operation attempted in read-only mode.")
-            return
-        if temp_min is None or temp_max is None:
-            return
-        temp_max_int = int(temp_max * 10)
-        temp_min_int = int(temp_min * 10)
-        config_data = self._hass.data[DOMAIN]["entities"]
-        config_max = config_data["wwNormaltemp"] # 105
-        config_min = config_data["wwMinimaltemp"] # 106
-        myFunctionName = inspect.currentframe().f_code.co_name
-        myAddress = config_max["register_number"]
-        myValue = int(temp_max_int)
-        mySlave = self._hass.data[DOMAIN]["wp_config"]["slave_id"]
-        #_LOGGER.debug(f"Setting for {myFunctionName} min to {config_data["wwMinimaltemp"]["wwMinimaltemp"]} with value {temp_min_int}")
-        #_LOGGER.debug(f"Setting for {myFunctionName} max to {myAddress} with value {myValue}")
-        if self._access_mode == "read_only":
-            _LOGGER.warning(f"Write operation attempted in read-only mode for {myFunctionName} to{register_id} to myAddress {myAddress} with value {myValue} second register: {config_min["register_number"]} with value {temp_min_int}.")
-            return
-        await self.write_register_with_protection(address=myAddress, value=myValue, slave=mySlave, entity_id=register_id)
-        myAddress = config_min["register_number"]
-        myValue = int(temp_min_int)
-        await self.write_register_with_protection(address=myAddress, value=myValue, slave=mySlave, entity_id=register_id)
         await self.async_refresh_modbus_data()
