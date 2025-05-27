@@ -482,7 +482,7 @@ class HaHeliothermModbusHub:
             _LOGGER.debug(f"Setting select from entity_type option for {entity_type}:{entityObject.entity_description.key} to {option}")
             await self.set_operating_mode(option, entity_key)
             return
-        if entity_type == "climate":
+        if entity_type == "climate" and not combined_entity:
             _LOGGER.debug(f"Setting climate from entity_type option for {entity_type}:{entityObject.entity_description.key} to {option}")
             if isinstance(option, dict) and "temperature" in option:
                 temperature = option["temperature"]
@@ -528,6 +528,7 @@ class HaHeliothermModbusHub:
         config_data = self._hass.data[DOMAIN]["entities"]
         config = config_data[entity_id]
         myAddress = config["register_number"]
+        _LOGGER.debug(f"temperature_what_is_IT: {temperature}")
         myValue = int(temperature / config.get("multiplier", 1))
         mySlave = self._hass.data[DOMAIN]["wp_config"]["slave_id"]
         if self._access_mode == "read_only":
