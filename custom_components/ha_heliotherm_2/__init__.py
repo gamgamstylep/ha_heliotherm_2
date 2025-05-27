@@ -484,7 +484,11 @@ class HaHeliothermModbusHub:
             return
         if entity_type == "climate":
             _LOGGER.debug(f"Setting climate from entity_type option for {entity_type}:{entityObject.entity_description.key} to {option}")
-            await self.set_temperature(option, entity_key)
+            if isinstance(option, dict) and "temperature" in option:
+                temperature = option["temperature"]
+            else:
+                temperature = option  # fallback, in case option is already a float/int
+            await self.set_temperature(temperature, entity_key)
             return
 
     async def set_operating_mode(self, operation_mode: str, register_id):
