@@ -126,6 +126,7 @@ class HaHeliothermModbusClimate(HaHeliothermBaseEntity, ClimateEntity):
         custom_data = {
             "entity_key": self._entity_key,
             "device_id": self.device_info.get("identifiers"),
+            "entity": self._entity
         }
         # setter_function_callback dann für beide temperature_low und temperature_high aufrufen - noch nicht implementiert ?
         self.hass.add_job(self._hub.setter_function_callback(self, kwargs, custom_data))
