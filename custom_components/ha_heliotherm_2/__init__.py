@@ -10,6 +10,7 @@ try:
   _LOGGER = logging.getLogger(__name__)
   _LOGGER.debug("Lade ha_heliotherm_2...")
   import threading
+  from homeassistant.core import callback
   from typing import Optional
   import json
   import aiofiles
@@ -22,7 +23,6 @@ try:
   from pymodbus.client import ModbusTcpClient
   from pymodbus.constants import Endian
   from pymodbus.exceptions import ConnectionException
-  from pymodbus.payload import BinaryPayloadDecoder
   import voluptuous as vol
 
   from homeassistant.helpers.entity import Entity
