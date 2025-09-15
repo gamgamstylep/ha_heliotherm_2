@@ -1,15 +1,15 @@
 from homeassistant.components.sensor import SensorEntity, SensorEntityDescription
-from pymodbus.payload import BinaryPayloadDecoder
-from pymodbus.constants import Endian
+# from pymodbus.payload import BinaryPayloadDecoder
+# from pymodbus.constants import Endian
 from homeassistant.core import callback
 from .ha_heliotherm_base_entity import HaHeliothermBaseEntity
 import logging
 _LOGGER = logging.getLogger(__name__)
-def decode_uint32(value):
-    """Decode a UINT32 value from Modbus."""
-    decoder = BinaryPayloadDecoder.fromRegisters(value, byteorder=Endian.Big)
-    decoded_value = decoder.decode_32bit_uint()
-    return decoded_value
+# def decode_uint32(value):
+#     """Decode a UINT32 value from Modbus."""
+#     decoder = BinaryPayloadDecoder.fromRegisters(value, byteorder=Endian.Big)
+#     decoded_value = decoder.decode_32bit_uint()
+#     return decoded_value
 
 class HaHeliothermModbusSensor(HaHeliothermBaseEntity, SensorEntity):
     """Representation of an Heliotherm Modbus sensor."""
