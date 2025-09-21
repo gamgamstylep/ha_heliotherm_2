@@ -9,7 +9,6 @@ try:
   import logging
   _LOGGER = logging.getLogger(__name__)
   _LOGGER.debug("Lade ha_heliotherm_2...")
-  import threading
   from homeassistant.core import callback
   from typing import Optional
   import json
@@ -19,8 +18,19 @@ try:
   import logging
 
   # Get the logger for your custom component (use your component's name)
+  try:
+      from importlib.metadata import version as get_version
+  except ImportError:
+      # Für Python <3.8
+      from importlib_metadata import version as get_version
 
-  from pymodbus.client import ModbusTcpClient
+  pymodbus_version = get_version("pymodbus")
+
+  def is_pymodbus_new():
+      major = int(pymodbus_version.split(".")[0])
+      return major >= 3
+  #from pymodbus.client import ModbusTcpClient # Alte Importmethode
+  from pymodbus.client import AsyncModbusTcpClient as ModbusTcpClient
   #from pymodbus.constants import Endian
   from pymodbus.exceptions import ConnectionException
   import voluptuous as vol
@@ -175,8 +185,10 @@ async def async_setup(hass, config):
         modbus_client = hass.data.get('modbus_tcp')
         if access_mode != "read_only":
           if modbus_client:
+              # is_pymodbus_new():
+                # Neue API (unit)
+              result = await modbus_client.write_register(address=address, value=value, device_id=1)
               _LOGGER.info(f"Writing {value} to register {address}")
-              result = await modbus_client.write_register(address, value)
               if result:
                   _LOGGER.info(f"Successfully wrote {value} to register {address}")
               else:
@@ -241,7 +253,12 @@ class HaHeliothermModbusHub:
         self._client = ModbusTcpClient(
             host=host, port=port, timeout=3, retries=3
         )
-        self._lock = threading.Lock()
+        _LOGGER.debug(f"Modbus client type: {type(self._client)}")
+        _LOGGER.debug(f"Modbus client write_register: {self._client.write_register}")
+        import inspect
+        sig = inspect.signature(self._client.write_register)
+        _LOGGER.debug(f"write_register signature: {sig}")
+        self._lock = asyncio.Lock()
         self._name = name
         self._scan_interval = timedelta(seconds=scan_interval)
         self._access_mode = access_mode
@@ -255,7 +272,7 @@ class HaHeliothermModbusHub:
         """Listen for data updates."""
         # This is the first sensor, set up interval.
         if not self._sensors:
-            self.connect()
+            asyncio.create_task(self.connect()) 
             self._unsub_interval_method = async_track_time_interval(
                 self._hass, self.async_refresh_modbus_data, self._scan_interval
             )
@@ -278,7 +295,7 @@ class HaHeliothermModbusHub:
         if not self._sensors:
             return
         _LOGGER.debug("Updating modbus data")
-        update_result = self.read_modbus_registers()
+        update_result = await self.read_modbus_registers()
 
         if update_result:
             for update_callback in self._sensors:
@@ -289,15 +306,15 @@ class HaHeliothermModbusHub:
         """Return the name of this hub."""
         return self._name
 
-    def close(self):
+    async def close(self):
         """Disconnect client."""
-        with self._lock:
-            self._client.close()
+        async with self._lock:
+            await self._client.close()
 
-    def connect(self):
+    async def connect(self):
         """Connect client."""
-        with self._lock:
-            self._client.connect()
+        async with self._lock:
+            await self._client.connect()
             
     async def write_register_with_protection(self, address, value, modbus_unit_id, entity_id):
         config = self._hass.data[DOMAIN]["entities"][entity_id]
@@ -310,18 +327,27 @@ class HaHeliothermModbusHub:
           _LOGGER.debug(f"{function_name}:Write protection is enabled. Cannot perform write operation for {entity_id} with address {address} and value {value}")
           return False
         # If no protection, proceed with the write operation
+        _LOGGER.debug("Starte type value überprüfung")
         if type(value) != int:
             _LOGGER.error(f"{function_name}:Invalid value {value} (datentyp:{type(value)}) (type: {value.__name__}) for {entity_id} with address {address}")
             return False
         try:
-            self._client.write_register(address=address, value=value)
-            #_LOGGER.debug(f"{function_name}:Successfully wrote value {value} to address {address} on unit {unit}")
+            _LOGGER.debug(f"Starte write_register try-block pymodbus_version:{pymodbus_version}")
+      
+            result = await self._client.write_register(address=address, value=value, device_id=modbus_unit_id)
+            _LOGGER.debug(f"write_register result for {address}: {result!r} (type: {type(result)})")
+            if result is None:
+                _LOGGER.error(f"❌ write_register returned None for address {address}, value {value}")
+            elif hasattr(result, "isError") and result.isError():
+                _LOGGER.error(f"❌ Fehler beim Schreiben: {result}")
+            else:
+                _LOGGER.info(f"✅ Erfolgreich geschrieben: {result}")
             return True
         except Exception as e:
-            #_LOGGER.debug(f"{function_name}:Failed to write register: {e}")
+            _LOGGER.error(f"Exception beim Schreiben: {e}")
             return False
             
-    def read_modbus_registers(self):
+    async def read_modbus_registers(self):
         """Read from modbus registers"""
         wp_config = self._hass.data[DOMAIN]["wp_config"]
         reading_registers = wp_config["reading_registers"]
@@ -331,7 +357,7 @@ class HaHeliothermModbusHub:
             #_LOGGER.debug(f"Reading register: {register_read}")
             start_address = register_read["start_address"]
             count = register_read["count"]
-            modbusdata = self._client.read_input_registers(address=start_address, count=count) 
+            modbusdata = await self._client.read_input_registers(address=start_address, count=count) 
             if modbusdata.isError():
                 _LOGGER.error(f"Error reading registers starting at address {start_address}")
                 return False
@@ -348,7 +374,7 @@ class HaHeliothermModbusHub:
             start_address = register_read["start_address"]
             count = register_read["count"]
             try:
-                modbusdata = self._client.read_holding_registers(address=start_address, count=count)
+                modbusdata = await self._client.read_holding_registers(address=start_address, count=count)
             except Exception as e:
                 _LOGGER.error(f"Error reading holding registers starting at address {start_address}: {e}")  
             if modbusdata.isError():
@@ -510,7 +536,7 @@ class HaHeliothermModbusHub:
       function_name = inspect.currentframe().f_code.co_name
       myAddress = config["register_number"]
       myValue = operation_mode_nr
-      modbus_unit_id = self._hass.data[DOMAIN]["wp_config"]["config"].get("modbus_unit_id", 1)
+      modbus_unit_id = self._hass.data[DOMAIN]["wp_config"].get("modbus_unit_id", 1)
       #_LOGGER.debug(f"Setting for {function_name} to {operation_mode} with value {myValue}")
       if self._access_mode == "read_only":
             _LOGGER.warning(f"Write operation attempted in read-only mode for {function_name} to {operation_mode} with value {myValue}.")
@@ -531,7 +557,7 @@ class HaHeliothermModbusHub:
         myAddress = config["register_number"]
         _LOGGER.debug(f"temperature_what_is_IT: {temperature}")
         myValue = int(temperature / config.get("multiplier", 1))
-        modbus_unit_id = self._hass.data[DOMAIN]["wp_config"]["config"].get("modbus_unit_id", 1)
+        modbus_unit_id = self._hass.data[DOMAIN]["wp_config"].get("modbus_unit_id", 1)
         if self._access_mode == "read_only":
             _LOGGER.warning(f"Write operation attempted in read-only mode for {my_function_name} to {entity_id} to myAddress {myAddress} with value {myValue}.")
             return
