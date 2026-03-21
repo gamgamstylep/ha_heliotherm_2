@@ -1,6 +1,19 @@
 from homeassistant.core import callback
 
-class HaHeliothermBaseEntity: 
+import unicodedata
+import re
+
+def normalize_for_entity_id(text: str) -> str:
+    # Entfernt Umlaute, Sonderzeichen & Leerzeichen
+    # Beispiel: "wärmepumpe test" → "waermepumpe_test"
+    text = unicodedata.normalize("NFKD", text)
+    text = text.encode("ascii", "ignore").decode("ascii")  # ä → ae etc.
+    text = re.sub(r"[^a-zA-Z0-9_]+", "_", text)            # alles nicht erlaubte ersetzen
+    text = re.sub(r"_+", "_", text)                        # doppelte _ vermeiden
+    return text.lower().strip("_")
+
+
+class HaHeliothermBaseEntity:
     """Base class for Heliotherm sensors."""
 
     def __init__(self, platform_name, hub, device_info, entity, entity_key, display_language):
@@ -9,13 +22,20 @@ class HaHeliothermBaseEntity:
         self._attr_device_info = device_info
         self._hub = hub
         self._entity = entity
-        self._entity_key= entity_key
+        self._entity_key = entity_key
         self._data_type = entity["data_type"]
         self._display_language = display_language
-        self._attr_name = f"{platform_name} {entity['description'][self._display_language]}"
-        self._name = self._attr_name  # Added line
-        self._attr_unique_id = f"{platform_name}_{entity_key}"
-        self.entity_id = f"{entity["type"]}.{platform_name}_{entity_key}".lower()
+
+        # Benutzerfreundlicher Name (darf ä, ö, ü enthalten)
+        display_name = f"{platform_name} {entity['description'][self._display_language]}"
+        self._attr_name = display_name
+        self._name = display_name
+
+        # Stabiler technischer Identifier ohne Sonderzeichen
+        unique_name = normalize_for_entity_id(f"{platform_name}_{entity_key}")
+
+        self._attr_unique_id = unique_name
+
 
     async def async_added_to_hass(self):
         """Register callbacks."""
@@ -35,7 +55,7 @@ class HaHeliothermBaseEntity:
 
     @property
     def unique_id(self):
-        return f"{self._platform_name}_{self._entity_key}"
+        return self._attr_unique_id
     
     @property
     def native_value(self):
