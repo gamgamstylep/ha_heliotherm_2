@@ -30,9 +30,9 @@ class HaHeliothermBaseEntity:
         display_name = f"{platform_name} {entity['description'][self._display_language]}"
         self._attr_name = display_name
 
-        # Optional aktivierbar: stabiler technischer Identifier ohne Sonderzeichen
-        # unique_name = normalize_for_entity_id(f"{platform_name}_{entity_key}")
-        # self._attr_unique_id = unique_name
+        # Stabiler technischer Identifier ohne Sonderzeichen
+        unique_name = normalize_for_entity_id(f"{platform_name}_{entity_key}")
+        self._attr_unique_id = unique_name
 
 
     async def async_added_to_hass(self):
