@@ -8,3 +8,7 @@
   - Antwort: "Branch, Commit + Push"
 - **Q3 - CLAUDE.md:** Soll im Projekt festgehalten werden, dass jede Session mit /gam-engineering startet?
   - Antwort: "In CLAUDE.md"
+- **Q4 - Was geht nicht:** Stand jetzt (17:36): HA läuft fehlerfrei, Entitäten 'unavailable', die Pumpe (10.19.0.70:502) beantwortet weiterhin keine Modbus-Anfrage – auch direkt vom PC nicht. Worauf bezieht sich 'geht nicht'?
+  - Antwort: "starte gerade die wärmepumpe neu. kann man eine entität machen. wärmpepumpe nicht erreichbar?"
+- **Q5 - Modbus-Freigabe:** Wurde an der Wärmepumpe/WebControl um den 16.10. etwas geändert (Firmware-Update, Netzwerk, Modbus-Einstellung, Stromausfall)?
+  - Antwort: "Nicht bekannt (Empfohlen)"

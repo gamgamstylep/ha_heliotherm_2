@@ -268,8 +268,8 @@ class HaHeliothermModbusHub:
         self._unsub_interval_method = None
         self._sensors = []
         self.data = {}
-        # False as soon as the heat pump stops answering; entities report "unavailable"
-        self.available = True
+        # None until the first poll, False while the heat pump does not answer
+        self.available = None
         self._modbus_unit_id = hass.data[DOMAIN]["wp_config"].get("modbus_unit_id", 1)
 
     @callback
@@ -309,15 +309,15 @@ class HaHeliothermModbusHub:
         except ModbusException as e:
             # pymodbus >= 3.8 raises on timeouts instead of returning an error response
             update_result = False
-            if self.available:
+            if self.available is not False:
                 _LOGGER.warning(f"Heliotherm {self._name}: no Modbus response, entities set unavailable: {e}")
         except Exception as e:
             update_result = False
             _LOGGER.exception(f"Heliotherm {self._name}: unexpected error while polling: {e}")
 
-        if update_result and not self.available:
+        if update_result and self.available is False:
             _LOGGER.info(f"Heliotherm {self._name}: Modbus connection restored")
-        if update_result or self.available:
+        if update_result or self.available is not False:
             self.available = bool(update_result)
             for update_callback in self._sensors:
                 update_callback()

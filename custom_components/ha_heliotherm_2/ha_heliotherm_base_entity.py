@@ -49,7 +49,7 @@ class HaHeliothermBaseEntity:
     @property
     def available(self) -> bool:
         """Unavailable while the heat pump does not answer Modbus requests."""
-        return self._hub.available
+        return self._hub.available is not False
 
     @property
     def name(self):
