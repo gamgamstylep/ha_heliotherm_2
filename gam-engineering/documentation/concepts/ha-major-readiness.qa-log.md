@@ -16,3 +16,5 @@ Verbatim log of the grilling rounds for [ha-major-readiness.md](ha-major-readine
   - Antwort: "Custom Repository (Recommended)"
 - **Q16 - INVEST (Valuable/Small) für v1.2.0:** „runtime_data“ allein bringt Nutzern kaum sichtbaren Nutzen, „runtime_data + Coordinator“ zusammen hat Gewicht 8. Wie schneiden?
   - Antwort: "Eine Story, zwei Slices (Recommended)"
+- **Q17 - Gegenprüfung:** Soll vor der Freigabe ein adversarialer Check (doubt-driven-development) auf Ziel-Ableitung §1 und Part H laufen?
+  - Antwort: "Nein (Recommended)"

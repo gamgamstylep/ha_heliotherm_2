@@ -27,3 +27,5 @@ Verbatim log of every question outside concept work (setup, delivery, settings) 
   - Antwort: "Schlank (Recommended)"
 - **Q10 - Branch-Modell (P-GIT-9):** Es gibt nur main, kein dev. Welches Modell?
   - Antwort: "trunk (Recommended)"
+- **Q18 - Merge:** Branch concept/ha-major-readiness (1 Commit, nur Doku + .claude/settings.json + CLAUDE.md) → main (trunk), lokaler Merge --no-ff + Push, kein PR, keine CI. Mergen?
+  - Antwort: "Jetzt mergen"
