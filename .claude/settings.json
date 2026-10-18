@@ -1,0 +1,25 @@
+{
+  "plansDirectory": "./plans",
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
+  "env": {
+    "GAM_ENGINEERING_BRANCHES": "trunk",
+    "GAM_ENGINEERING_MERGE": "ask",
+    "GAM_ENGINEERING_APPROVALS": "1",
+    "GAM_ENGINEERING_RELEASE_MERGE": "ask"
+  },
+  "permissions": {
+    "ask": [
+      "Bash(git merge *)",
+      "Bash(gh pr merge *)",
+      "Bash(git tag *)",
+      "Bash(gh release create *)",
+      "PowerShell(git merge *)",
+      "PowerShell(gh pr merge *)",
+      "PowerShell(git tag *)",
+      "PowerShell(gh release create *)"
+    ]
+  }
+}
