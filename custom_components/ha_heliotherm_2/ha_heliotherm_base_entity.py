@@ -47,6 +47,11 @@ class HaHeliothermBaseEntity:
         self.async_write_ha_state()
 
     @property
+    def available(self) -> bool:
+        """Unavailable while the heat pump does not answer Modbus requests."""
+        return self._hub.available
+
+    @property
     def name(self):
         """Return the name."""
         return f"{self._platform_name} {self._entity['description'][self._display_language]}"
