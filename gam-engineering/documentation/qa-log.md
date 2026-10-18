@@ -1,5 +1,7 @@
 # Q&A log
 
+Verbatim log of every question outside concept work (setup, delivery, settings) and its answer. Concept questions live in the concept's own `.qa-log.md`.
+
 ## 2026-10-18 — Fix Modbus timeout handling
 
 - **Q1 - HA-Neustart:** Der Fix liegt auf der HA-Samba-Freigabe (Backup im Scratchpad). Für den Test muss Home Assistant neu starten (~1 Min. Ausfall aller Automationen). Jetzt neu starten?
@@ -16,3 +18,12 @@
   - Antwort: "Jetzt neu starten (Empfohlen)"
 - **Q7 - Merge:** Branch fix/modbus-timeout-handling (5 Commits) → main, lokaler Merge (--no-ff) + Push, kein MR (Repo hat keine CI; Test erfolgte live in HA). Mergen?
   - Antwort: "Jetzt mergen"
+
+## 2026-10-18 — Setup for "HA major version readiness"
+
+- **Q8 - Projektziel G-1:** Kein GOAL.md vorhanden. Welches Projektziel (max. 200 Zeichen) soll gelten?
+  - Antwort: "Vorschlag übernehmen (Recommended)"
+- **Q9 - Prozessumfang:** Wie viel gam-engineering-Struktur soll das Projekt bekommen?
+  - Antwort: "Schlank (Recommended)"
+- **Q10 - Branch-Modell (P-GIT-9):** Es gibt nur main, kein dev. Welches Modell?
+  - Antwort: "trunk (Recommended)"

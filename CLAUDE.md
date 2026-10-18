@@ -2,6 +2,10 @@
 
 Every grilling, planning, concept, or delivery session starts with /gam-engineering (P-GRILL-5, P-WS-6).
 
+## Documentation
+
+`gam-engineering/documentation/` is the source of truth: start with [GOAL.md](gam-engineering/documentation/GOAL.md), then [ROADMAP-DETAILS.md](gam-engineering/documentation/ROADMAP-DETAILS.md) for the current position. Branch model `trunk` and merge policy `ask` are set in `.claude/settings.json`. Plans go to `plans/`.
+
 ## Project overview
 
 Home Assistant custom component `ha_heliotherm_2` for Heliotherm heat pumps via Modbus TCP (pymodbus async client). Register map and entity definitions live in `custom_components/ha_heliotherm_2/heliotherm_config.json`.

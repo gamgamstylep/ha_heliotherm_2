@@ -1,0 +1,14 @@
+// markdownlint configuration for gam-engineering/documentation/ (gam-engineering).
+// Every rule is on with its defaults, except where a document form of the
+// manifest needs otherwise. Used by markdownlint-cli2 locally and in CI.
+{
+  "default": true,
+
+  // Line length: prose, tables, and Given/When/Then cells are written as one
+  // line each; wrapping them hurts diffs and reviews.
+  "MD013": false,
+
+  // A concept document has three top-level headings by design: its title,
+  // Part H, and Part S. The frontmatter `title` is metadata, not a heading.
+  "MD025": false
+}
