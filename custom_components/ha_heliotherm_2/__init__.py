@@ -440,6 +440,14 @@ class HaHeliothermModbusHub:
                     elif wp_entity_object["type"] == "climate":
                         _LOGGER.debug(f"Climate register: {entity_key} with value {register_value}")
                         self.data[entity_key] = self.checkval(register_value, multiplier)
+                    elif wp_entity_object["data_type"] == "uint32":
+                        # register_number holds the low word, register_number - 1 the high word
+                        high_word = modbusdata_input_registers_values.get(register_number - 1)
+                        if high_word is None:
+                            _LOGGER.error(f"High word register {register_number - 1} not read for {entity_key}")
+                            continue
+                        value = (high_word << 16) | register_value
+                        self.data[entity_key] = round(value * (multiplier or 1), 1)
                     elif wp_entity_object["data_type"] == "INT16":
                         self.data[entity_key] = self.checkval(register_value, multiplier)
                     elif wp_entity_object["type"] == "energy":
