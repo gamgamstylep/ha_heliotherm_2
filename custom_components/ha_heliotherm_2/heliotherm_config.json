@@ -1079,8 +1079,8 @@
 			"register_codes": 4,
 			"data_type": "uint32",
 			"description": {
-				"en": "Electrical Power Consumption",
-				"de": "elektrisch Aufnahmeleistung"
+				"en": "Electrical Power Consumption1",
+				"de": "elektrische Aufnahmeleistung1"
 			},
 			"unit": "W",
 			"step": 1,
@@ -1089,7 +1089,7 @@
 			"controller_id": "MP83",
 			"mode": "readable",
 			"remark": "Einheit in W",
-			"designation": "elektrisch Aufnahmeleistung/stromz_leistung",
+			"designation": "elektrische Aufnahmeleistung1/stromz_aktuell",
 			"read_register_code1": 4,
 			"read_register_code2": 3,
 			"write_register_code": null
@@ -1100,8 +1100,8 @@
 			"register_codes": 4,
 			"data_type": "uint32",
 			"description": {
-				"en": "Electrical Power Consumption",
-				"de": "elektrisch Aufnahmeleistung"
+				"en": "Electrical Power Consumption2",
+				"de": "elektrische Aufnahmeleistung2"
 			},
 			"unit": "W",
 			"step": 1,
@@ -1110,7 +1110,7 @@
 			"controller_id": "MP83",
 			"mode": "readable",
 			"remark": "Einheit in W",
-			"designation": "elektrisch Aufnahmeleistung",
+			"designation": "elektrische Aufnahmeleistung2",
 			"read_register_code1": 4,
 			"read_register_code2": 3,
 			"write_register_code": null
