@@ -14,3 +14,5 @@
   - Antwort: "Nicht bekannt (Empfohlen)"
 - **Q6 - HA-Neustart:** Die neue heliotherm_config.json liegt auf HA, wird aber erst nach einem Neustart geladen (~1 Min. Ausfall). Jetzt neu starten?
   - Antwort: "Jetzt neu starten (Empfohlen)"
+- **Q7 - Merge:** Branch fix/modbus-timeout-handling (5 Commits) → main, lokaler Merge (--no-ff) + Push, kein MR (Repo hat keine CI; Test erfolgte live in HA). Mergen?
+  - Antwort: "Jetzt mergen"
