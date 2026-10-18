@@ -32,7 +32,7 @@ try:
   #from pymodbus.client import ModbusTcpClient # Alte Importmethode
   from pymodbus.client import AsyncModbusTcpClient as ModbusTcpClient
   #from pymodbus.constants import Endian
-  from pymodbus.exceptions import ConnectionException
+  from pymodbus.exceptions import ConnectionException, ModbusException
   import voluptuous as vol
 
   from homeassistant.helpers.entity import Entity
@@ -228,11 +228,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
 async def async_unload_entry(hass, entry):
     """Unload HaHeliotherm mobus entry."""
-    unload_ok = await hass.config_entries.async_forward_entry_unload(entry, "sensor")
+    unload_ok = await hass.config_entries.async_unload_platforms(entry, ["sensor", "binary_sensor", "climate", "select"])
     if not unload_ok:
         return False
 
-    hass.data[DOMAIN].pop(entry.data["name"])
+    hub_data = hass.data[DOMAIN].pop(entry.data[CONF_NAME], None)
+    if hub_data and "hub" in hub_data:
+        await hub_data["hub"].close()
     return True
 
 class HaHeliothermModbusHub:
@@ -266,13 +268,16 @@ class HaHeliothermModbusHub:
         self._unsub_interval_method = None
         self._sensors = []
         self.data = {}
+        # None until the first poll, False while the heat pump does not answer
+        self.available = None
+        self._modbus_unit_id = hass.data[DOMAIN]["wp_config"].get("modbus_unit_id", 1)
 
     @callback
     def async_add_haheliotherm_modbus_sensor(self, update_callback):
         """Listen for data updates."""
         # This is the first sensor, set up interval.
         if not self._sensors:
-            asyncio.create_task(self.connect()) 
+            self._hass.async_create_task(self.connect())
             self._unsub_interval_method = async_track_time_interval(
                 self._hass, self.async_refresh_modbus_data, self._scan_interval
             )
@@ -282,22 +287,38 @@ class HaHeliothermModbusHub:
     @callback
     def async_remove_haheliotherm_modbus_sensor(self, update_callback):
         """Remove data update."""
-        self._sensors.remove(update_callback)
+        if update_callback in self._sensors:
+            self._sensors.remove(update_callback)
 
-        if not self._sensors:
+        if not self._sensors and self._unsub_interval_method:
             # """stop the interval timer upon removal of last sensor"""
             self._unsub_interval_method()
             self._unsub_interval_method = None
-            self.close()
+            self._hass.async_create_task(self.close())
 
     async def async_refresh_modbus_data(self, _now: Optional[int] = None) -> None:
         """Time to update."""
         if not self._sensors:
             return
         _LOGGER.debug("Updating modbus data")
-        update_result = await self.read_modbus_registers()
+        try:
+            async with self._lock:
+                if not self._client.connected:
+                    await self._client.connect()
+                update_result = await self.read_modbus_registers()
+        except ModbusException as e:
+            # pymodbus >= 3.8 raises on timeouts instead of returning an error response
+            update_result = False
+            if self.available is not False:
+                _LOGGER.warning(f"Heliotherm {self._name}: no Modbus response, entities set unavailable: {e}")
+        except Exception as e:
+            update_result = False
+            _LOGGER.exception(f"Heliotherm {self._name}: unexpected error while polling: {e}")
 
-        if update_result:
+        if update_result and self.available is False:
+            _LOGGER.info(f"Heliotherm {self._name}: Modbus connection restored")
+        if update_result or self.available is not False:
+            self.available = bool(update_result)
             for update_callback in self._sensors:
                 update_callback()
 
@@ -309,7 +330,8 @@ class HaHeliothermModbusHub:
     async def close(self):
         """Disconnect client."""
         async with self._lock:
-            await self._client.close()
+            # close() is synchronous in pymodbus 3.x
+            self._client.close()
 
     async def connect(self):
         """Connect client."""
@@ -357,7 +379,7 @@ class HaHeliothermModbusHub:
             #_LOGGER.debug(f"Reading register: {register_read}")
             start_address = register_read["start_address"]
             count = register_read["count"]
-            modbusdata = await self._client.read_input_registers(address=start_address, count=count) 
+            modbusdata = await self._client.read_input_registers(address=start_address, count=count, device_id=self._modbus_unit_id)
             if modbusdata.isError():
                 _LOGGER.error(f"Error reading registers starting at address {start_address}")
                 return False
@@ -373,10 +395,7 @@ class HaHeliothermModbusHub:
         for register_read in holding_registers:
             start_address = register_read["start_address"]
             count = register_read["count"]
-            try:
-                modbusdata = await self._client.read_holding_registers(address=start_address, count=count)
-            except Exception as e:
-                _LOGGER.error(f"Error reading holding registers starting at address {start_address}: {e}")  
+            modbusdata = await self._client.read_holding_registers(address=start_address, count=count, device_id=self._modbus_unit_id)
             if modbusdata.isError():
                 _LOGGER.error(f"Error reading registers starting at address {start_address}")
                 return False
@@ -421,6 +440,14 @@ class HaHeliothermModbusHub:
                     elif wp_entity_object["type"] == "climate":
                         _LOGGER.debug(f"Climate register: {entity_key} with value {register_value}")
                         self.data[entity_key] = self.checkval(register_value, multiplier)
+                    elif wp_entity_object["data_type"] == "uint32":
+                        # register_number holds the low word, register_number - 1 the high word
+                        high_word = modbusdata_input_registers_values.get(register_number - 1)
+                        if high_word is None:
+                            _LOGGER.error(f"High word register {register_number - 1} not read for {entity_key}")
+                            continue
+                        value = (high_word << 16) | register_value
+                        self.data[entity_key] = round(value * (multiplier or 1), 1)
                     elif wp_entity_object["data_type"] == "INT16":
                         self.data[entity_key] = self.checkval(register_value, multiplier)
                     elif wp_entity_object["type"] == "energy":
